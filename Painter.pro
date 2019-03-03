@@ -32,7 +32,8 @@ SOURCES += \
     line.cpp \
     polygon.cpp \
     ellipse.cpp \
-    curve.cpp
+    curve.cpp \
+    resetcanvasdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,7 +42,8 @@ HEADERS += \
     line.h \
     polygon.h \
     ellipse.h \
-    curve.h
+    curve.h \
+    resetcanvasdialog.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -50,3 +52,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     painter.qrc
+
+FORMS += \
+    resetcanvasdialog.ui

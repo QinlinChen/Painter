@@ -21,3 +21,12 @@ void Painter::paintEvent(QPaintEvent * /* event */)
     QPainter painter(this);
     painter.drawImage(0, 0, canvas);
 }
+
+void Painter::setCanvasSize(const QSize &size)
+{
+    // TODO
+    canvas = QImage(size, QImage::Format_RGB32);
+    canvas.fill(Qt::white);
+    update();
+    updateGeometry();
+}

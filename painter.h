@@ -12,6 +12,9 @@ public:
 
     QSize sizeHint() const;
 
+    void setCanvasSize(const QSize &size);
+    QSize getCanvasSize() const { return canvas.size(); }
+
 signals:
 
 public slots:

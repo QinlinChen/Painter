@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "painter.h"
+#include "resetcanvasdialog.h"
 
 #include <QtWidgets>
 
@@ -27,6 +28,7 @@ void MainWindow::createActions()
 {
     resetCanvasAction = new QAction(tr("Reset"), this);
     resetCanvasAction->setIcon(QIcon(":/images/reset.png"));
+    resetCanvasAction->setShortcut(tr("Ctrl+R"));
     resetCanvasAction->setStatusTip(tr("Reset the canvas size"));
     connect(resetCanvasAction, SIGNAL(triggered()), this, SLOT(resetCanvas()));
 
@@ -38,7 +40,7 @@ void MainWindow::createActions()
 
     exitAction = new QAction(tr("E&xit"), this);
     exitAction->setIcon(QIcon(":/images/exit.png"));
-    exitAction->setShortcut(QKeySequence::Quit);
+    exitAction->setShortcut(tr("Ctrl+Q"));
     exitAction->setStatusTip(tr("Exit the application"));
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
@@ -160,13 +162,16 @@ void MainWindow::createToolBars()
 void MainWindow::save()
 {
     // TODO
+    QFileDialog a;
     qDebug() << "save()" << endl;
 }
 
 void MainWindow::setPenColor()
 {
     // TODO
-    qDebug() << "setPenColor()" << endl;
+    QColor color = QColorDialog::getColor();
+    if (color.isValid())
+        qDebug() << color.redF() << color.greenF() << color.blueF();
 }
 
 void MainWindow::drawLine()
@@ -195,8 +200,12 @@ void MainWindow::drawCurve()
 
 void MainWindow::resetCanvas()
 {
-    // TODO
-    qDebug() << "resetCanvas()" << endl;
+    ResetCanvasDialog dialog(this);
+    dialog.setCurrentCanvasSize(painter->getCanvasSize());
+
+    if (dialog.exec()) {
+        painter->setCanvasSize(dialog.selectedCanvasSize());
+    }
 }
 
 void MainWindow::transform()
