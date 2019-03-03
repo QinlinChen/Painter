@@ -30,12 +30,11 @@ private slots:
     void about();
 
 private:
-    void createWidgits();
     void createActions();
     void createMenus();
+    void createDockWindows();
     void createContextMenu();
     void createToolBars();
-    void createStatusBar();
 
     QListWidget *shapeList;
     Painter *painter;
@@ -43,6 +42,7 @@ private:
     QMenu *fileMenu;
     QMenu *toolsMenu;
     QMenu *editMenu;
+    QMenu *viewMenu;
     QMenu *helpMenu;
     QToolBar *fileToolBar;
     QToolBar *toolsToolBar;

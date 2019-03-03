@@ -6,27 +6,21 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    createWidgits();
+    painter = new Painter(400, 300);
+    setCentralWidget(painter);
+
     createActions();
     createMenus();
+    createDockWindows();
     createContextMenu();
     createToolBars();
+
+    setWindowTitle(tr("Painter"));
 }
 
 MainWindow::~MainWindow()
 {
 
-}
-
-void MainWindow::createWidgits()
-{
-    shapeList = new QListWidget;
-    painter = new Painter(400, 300);
-
-    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
-    splitter->addWidget(shapeList);
-    splitter->addWidget(painter);
-    setCentralWidget(splitter);
 }
 
 void MainWindow::createActions()
@@ -113,11 +107,27 @@ void MainWindow::createMenus()
     editMenu->addAction(transformAction);
     editMenu->addAction(clipAction);
 
+    viewMenu = menuBar()->addMenu(tr("&View"));
+
     menuBar()->addSeparator();
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAction);
     helpMenu->addAction(aboutQtAction);
+}
+
+void MainWindow::createDockWindows()
+{
+    QDockWidget *dock = new QDockWidget(tr("Shapes"), this);
+    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    shapeList = new QListWidget(dock);
+    shapeList->addItems(QStringList()
+                        << "Line 1"
+                        << "Curve 2"
+                        << "Polygon 3");
+    dock->setWidget(shapeList);
+    addDockWidget(Qt::RightDockWidgetArea, dock);
+    viewMenu->addAction(dock->toggleViewAction());
 }
 
 void MainWindow::createContextMenu()
@@ -134,7 +144,6 @@ void MainWindow::createToolBars()
     fileToolBar = addToolBar(tr("&File"));
     fileToolBar->addAction(resetCanvasAction);
     fileToolBar->addAction(saveAction);
-    fileToolBar->addAction(exitAction);
 
     toolsToolBar = addToolBar(tr("&Tools"));
     toolsToolBar->addAction(setPenColorAction);
