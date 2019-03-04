@@ -170,18 +170,21 @@ QIcon MainWindow::createIconByColor(const QColor &color, const QSize &size)
 void MainWindow::save()
 {
     // TODO
-    QFileDialog a;
-    qDebug() << "save()" << endl;
+    QString fileName = QFileDialog::getSaveFileName(
+                this, tr("Save File"), "untitled",
+                tr("BMP (*.bmp);;JPEG (*.jpg);;PNG (*.png)"));
+    if (!fileName.isEmpty()) {
+        painter->saveCanvas(fileName);
+    }
 }
 
 void MainWindow::setPenColor()
 {
     QColor color = QColorDialog::getColor(painter->getPenColor(),
-                                          this, "Select Pen Color");
+                                          this, tr("Select Pen Color"));
     if (color.isValid()) {
         painter->setPenColor(color);
         setPenColorAction->setIcon(createIconByColor(color));
-        qDebug() << color.redF() << color.greenF() << color.blueF();
     }
 }
 
@@ -213,7 +216,7 @@ void MainWindow::resetCanvas()
 {
     QSize size = QSizeDialog::getSize(QSize(4096, 2160),
                                       painter->getCanvasSize(),
-                                      this, "Reset Canvas");
+                                      this, tr("Reset Canvas"));
     if (!size.isEmpty()) {
         painter->setCanvasSize(size);
     }

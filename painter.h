@@ -14,6 +14,8 @@ public:
 
     QSize getCanvasSize() const { return canvas.size(); }
     void setCanvasSize(const QSize &size);
+    bool saveCanvas(const QString &fileName);
+
     QColor getPenColor() const { return penColor; }
     void setPenColor(const QColor &color);
 

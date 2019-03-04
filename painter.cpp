@@ -33,6 +33,11 @@ void Painter::setCanvasSize(const QSize &size)
     }
 }
 
+bool Painter::saveCanvas(const QString &fileName)
+{
+    return canvas.save(fileName);
+}
+
 void Painter::setPenColor(const QColor &color)
 {
     penColor = color;

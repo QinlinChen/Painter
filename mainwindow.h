@@ -37,7 +37,7 @@ private:
     void createToolBars();
 
     static QIcon createIconByColor(const QColor &color,
-                                const QSize &size = QSize(32, 32));
+                                   const QSize &size = QSize(32, 32));
 
     QListWidget *shapeList;
     Painter *painter;
