@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     createToolBars();
 
     setWindowTitle(tr("Painter"));
+    setWindowIcon(QIcon(":/images/painter.png"));
 }
 
 MainWindow::~MainWindow()
@@ -45,7 +46,7 @@ void MainWindow::createActions()
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
     setPenColorAction = new QAction(tr("Pen Color"));
-    setPenColorAction->setIcon(QIcon(":/images/pencolor.png"));
+    setPenColorAction->setIcon(createIconByColor(painter->getPenColor()));
     setPenColorAction->setStatusTip(tr("Set the pen color"));
     connect(setPenColorAction, SIGNAL(triggered()), this, SLOT(setPenColor()));
 
@@ -159,6 +160,13 @@ void MainWindow::createToolBars()
     editToolBar->addAction(clipAction);
 }
 
+QIcon MainWindow::createIconByColor(const QColor &color, const QSize &size)
+{
+    QPixmap pixmap(size);
+    pixmap.fill(color);
+    return QIcon(pixmap);
+}
+
 void MainWindow::save()
 {
     // TODO
@@ -168,10 +176,13 @@ void MainWindow::save()
 
 void MainWindow::setPenColor()
 {
-    // TODO
-    QColor color = QColorDialog::getColor();
-    if (color.isValid())
+    QColor color = QColorDialog::getColor(painter->getPenColor(),
+                                          this, "Select Pen Color");
+    if (color.isValid()) {
+        painter->setPenColor(color);
+        setPenColorAction->setIcon(createIconByColor(color));
         qDebug() << color.redF() << color.greenF() << color.blueF();
+    }
 }
 
 void MainWindow::drawLine()

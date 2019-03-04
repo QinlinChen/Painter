@@ -12,8 +12,10 @@ public:
 
     QSize sizeHint() const;
 
-    void setCanvasSize(const QSize &size);
     QSize getCanvasSize() const { return canvas.size(); }
+    void setCanvasSize(const QSize &size);
+    QColor getPenColor() const { return penColor; }
+    void setPenColor(const QColor &color);
 
 signals:
 
@@ -24,6 +26,7 @@ protected:
 
 private:
     QImage canvas;
+    QColor penColor;
 };
 
 #endif // PAINTER_H

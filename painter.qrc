@@ -9,6 +9,6 @@
         <file>images/reset.png</file>
         <file>images/save.png</file>
         <file>images/exit.png</file>
-        <file>images/pencolor.png</file>
+        <file>images/painter.png</file>
     </qresource>
 </RCC>
