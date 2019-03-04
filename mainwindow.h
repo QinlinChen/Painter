@@ -2,12 +2,16 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QIcon>
+#include <QColor>
+#include <QSize>
 
 class QAction;
 class QMenu;
 class QToolBar;
 class QListWidget;
 class Painter;
+class Shape;
 
 class MainWindow : public QMainWindow
 {
@@ -18,16 +22,19 @@ public:
     ~MainWindow();
 
 private slots:
+    void adjustCanvasSize();
+    void clear();
     void save();
     void setPenColor();
     void drawLine();
     void drawPolygon();
     void drawEllipse();
     void drawCurve();
-    void resetCanvas();
     void transform();
     void clip();
     void about();
+
+    void addShape(Shape *shape);
 
 private:
     void createActions();
@@ -50,7 +57,8 @@ private:
     QToolBar *fileToolBar;
     QToolBar *toolsToolBar;
     QToolBar *editToolBar;
-    QAction *resetCanvasAction;
+    QAction *adjustCanvasSizeAction;
+    QAction *clearAction;
     QAction *saveAction;
     QAction *exitAction;
     QAction *setPenColorAction;

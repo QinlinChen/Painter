@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "painter.h"
 #include "qsizedialog.h"
+#include "shape.h"
 
 #include <QtWidgets>
 
@@ -9,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     painter = new Painter(400, 300);
     setCentralWidget(painter);
+    connect(painter, SIGNAL(shapeAdded(Shape *)),
+            this, SLOT(addShape(Shape *)));
 
     createActions();
     createMenus();
@@ -27,73 +30,91 @@ MainWindow::~MainWindow()
 
 void MainWindow::createActions()
 {
-    resetCanvasAction = new QAction(tr("Reset"), this);
-    resetCanvasAction->setIcon(QIcon(":/images/reset.png"));
-    resetCanvasAction->setShortcut(tr("Ctrl+R"));
-    resetCanvasAction->setStatusTip(tr("Reset the canvas size"));
-    connect(resetCanvasAction, SIGNAL(triggered()), this, SLOT(resetCanvas()));
+    adjustCanvasSizeAction = new QAction(tr("Canvas Size"), this);
+    adjustCanvasSizeAction->setShortcut(tr("Ctrl+R"));
+    adjustCanvasSizeAction->setStatusTip(tr("Adjust the canvas size"));
+    connect(adjustCanvasSizeAction, SIGNAL(triggered()),
+            this, SLOT(adjustCanvasSize()));
+
+    clearAction = new QAction(tr("Clear"), this);
+    clearAction->setIcon(QIcon(":/images/reset.png"));
+    clearAction->setStatusTip(tr("Clear the canvas"));
+    connect(clearAction, SIGNAL(triggered()),
+            this, SLOT(clear()));
 
     saveAction = new QAction(tr("&Save"), this);
     saveAction->setIcon(QIcon(":/images/save.png"));
     saveAction->setShortcut(QKeySequence::Save);
     saveAction->setStatusTip(tr("Save the canvas as a picture"));
-    connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
+    connect(saveAction, SIGNAL(triggered()),
+            this, SLOT(save()));
 
     exitAction = new QAction(tr("E&xit"), this);
     exitAction->setIcon(QIcon(":/images/exit.png"));
     exitAction->setShortcut(tr("Ctrl+Q"));
     exitAction->setStatusTip(tr("Exit the application"));
-    connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+    connect(exitAction, SIGNAL(triggered()),
+            this, SLOT(close()));
 
     setPenColorAction = new QAction(tr("Pen Color"));
     setPenColorAction->setIcon(createIconByColor(painter->getPenColor()));
     setPenColorAction->setStatusTip(tr("Set the pen color"));
-    connect(setPenColorAction, SIGNAL(triggered()), this, SLOT(setPenColor()));
+    connect(setPenColorAction, SIGNAL(triggered()),
+            this, SLOT(setPenColor()));
 
     drawLineAction = new QAction(tr("Line"));
     drawLineAction->setIcon(QIcon(":/images/line.png"));
     drawLineAction->setStatusTip(tr("Draw lines"));
-    connect(drawLineAction, SIGNAL(triggered()), this, SLOT(drawLine()));
+    connect(drawLineAction, SIGNAL(triggered()),
+            this, SLOT(drawLine()));
 
     drawPolygonAction = new QAction(tr("Polygon"));
     drawPolygonAction->setIcon(QIcon(":/images/polygon.png"));
     drawPolygonAction->setStatusTip(tr("Draw polygons"));
-    connect(drawPolygonAction, SIGNAL(triggered()), this, SLOT(drawPolygon()));
+    connect(drawPolygonAction, SIGNAL(triggered()),
+            this, SLOT(drawPolygon()));
 
     drawEllipseAction = new QAction(tr("Ellipse"));
     drawEllipseAction->setIcon(QIcon(":/images/ellipse.png"));
     drawEllipseAction->setStatusTip(tr("Draw ellipses"));
-    connect(drawEllipseAction, SIGNAL(triggered()), this, SLOT(drawEllipse()));
+    connect(drawEllipseAction, SIGNAL(triggered()),
+            this, SLOT(drawEllipse()));
 
     drawCurveAction = new QAction(tr("Curve"));
     drawCurveAction->setIcon(QIcon(":/images/curve.png"));
     drawCurveAction->setStatusTip(tr("Draw curves"));
-    connect(drawCurveAction, SIGNAL(triggered()), this, SLOT(drawCurve()));
+    connect(drawCurveAction, SIGNAL(triggered()),
+            this, SLOT(drawCurve()));
 
     transformAction = new QAction(tr("Transform"), this);
     transformAction->setIcon(QIcon(":/images/transform.png"));
     transformAction->setShortcut(tr("Ctrl+T"));
     transformAction->setStatusTip(tr("Transform the current shape"));
-    connect(transformAction, SIGNAL(triggered()), this, SLOT(transform()));
+    connect(transformAction, SIGNAL(triggered()),
+            this, SLOT(transform()));
 
     clipAction = new QAction(tr("Clip"), this);
     clipAction->setIcon(QIcon(":/images/clip.png"));
     clipAction->setStatusTip(tr("Clip the current shape"));
-    connect(clipAction, SIGNAL(triggered()), this, SLOT(clip()));
+    connect(clipAction, SIGNAL(triggered()),
+            this, SLOT(clip()));
 
     aboutAction = new QAction(tr("&About"), this);
     aboutAction->setStatusTip(tr("Show the application's About box"));
-    connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
+    connect(aboutAction, SIGNAL(triggered()),
+            this, SLOT(about()));
 
     aboutQtAction = new QAction(tr("About &Qt"), this);
     aboutQtAction->setStatusTip(tr("Show the Qt library's About box"));
-    connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+    connect(aboutQtAction, SIGNAL(triggered()),
+            qApp, SLOT(aboutQt()));
 }
 
 void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(resetCanvasAction);
+    fileMenu->addAction(adjustCanvasSizeAction);
+    fileMenu->addAction(clearAction);
     fileMenu->addAction(saveAction);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
@@ -124,10 +145,6 @@ void MainWindow::createDockWindows()
     QDockWidget *dock = new QDockWidget(tr("Shapes"), this);
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     shapeList = new QListWidget(dock);
-    shapeList->addItems(QStringList()
-                        << "Line 1"
-                        << "Curve 2"
-                        << "Polygon 3");
     dock->setWidget(shapeList);
     addDockWidget(Qt::RightDockWidgetArea, dock);
     viewMenu->addAction(dock->toggleViewAction());
@@ -145,7 +162,7 @@ void MainWindow::createContextMenu()
 void MainWindow::createToolBars()
 {
     fileToolBar = addToolBar(tr("&File"));
-    fileToolBar->addAction(resetCanvasAction);
+    fileToolBar->addAction(clearAction);
     fileToolBar->addAction(saveAction);
 
     toolsToolBar = addToolBar(tr("&Tools"));
@@ -167,9 +184,24 @@ QIcon MainWindow::createIconByColor(const QColor &color, const QSize &size)
     return QIcon(pixmap);
 }
 
-void MainWindow::save()
+void MainWindow::adjustCanvasSize()
+{
+    QSize size = QSizeDialog::getSize(QSize(4096, 2160),
+                                      painter->getCanvasSize(),
+                                      this, tr("Reset Canvas"));
+    if (!size.isEmpty()) {
+        painter->setCanvasSize(size);
+    }
+}
+
+void MainWindow::clear()
 {
     // TODO
+    qDebug("clear()");
+}
+
+void MainWindow::save()
+{
     QString fileName = QFileDialog::getSaveFileName(
                 this, tr("Save File"), "untitled",
                 tr("BMP (*.bmp);;JPEG (*.jpg);;PNG (*.png)"));
@@ -190,48 +222,42 @@ void MainWindow::setPenColor()
 
 void MainWindow::drawLine()
 {
-    // TODO
-    qDebug() << "drawLine()" << endl;
+    painter->setCurrentMode(Painter::DRAW_LINE_MODE);
 }
 
 void MainWindow::drawPolygon()
 {
     // TODO
-    qDebug() << "drawPolygon()" << endl;
+    painter->setCurrentMode(Painter::DRAW_POLYGON_MODE);
+    qDebug("drawPolygon()");
 }
 
 void MainWindow::drawEllipse()
 {
     // TODO
-    qDebug() << "drawEllipse()" << endl;
+    painter->setCurrentMode(Painter::DRAW_ELLIPSE_MODE);
+    qDebug("drawEllipse()");
 }
 
 void MainWindow::drawCurve()
 {
     // TODO
-    qDebug() << "drawCurve()" << endl;
-}
-
-void MainWindow::resetCanvas()
-{
-    QSize size = QSizeDialog::getSize(QSize(4096, 2160),
-                                      painter->getCanvasSize(),
-                                      this, tr("Reset Canvas"));
-    if (!size.isEmpty()) {
-        painter->setCanvasSize(size);
-    }
+    painter->setCurrentMode(Painter::DRAW_CURVE_MODE);
+    qDebug("drawCurve()");
 }
 
 void MainWindow::transform()
 {
     // TODO
-    qDebug() << "transform()" << endl;
+    painter->setCurrentMode(Painter::TRANSFORM_MODE);
+    qDebug("transform()");
 }
 
 void MainWindow::clip()
 {
     // TODO
-    qDebug() << "clip()" << endl;
+    painter->setCurrentMode(Painter::CLIP_MODE);
+    qDebug("clip()");
 }
 
 void MainWindow::about()
@@ -242,5 +268,14 @@ void MainWindow::about()
                "<p>Painter is a small application that "
                "can paint shapes and do transformations "
                "on them."));
+}
+
+void MainWindow::addShape(Shape *shape)
+{
+    static int id = 1;
+    QString text = shape->shapeName() + " " + QString::number(id++);
+    QListWidgetItem *item = new QListWidgetItem(text);
+    item->setData(Qt::UserRole, QVariant::fromValue(static_cast<void *>(shape)));
+    shapeList->insertItem(0, item);
 }
 
