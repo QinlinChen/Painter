@@ -24,9 +24,10 @@ void Painter::paintEvent(QPaintEvent * /* event */)
 
 void Painter::setCanvasSize(const QSize &size)
 {
-    // TODO
-    canvas = QImage(size, QImage::Format_RGB32);
-    canvas.fill(Qt::white);
-    update();
-    updateGeometry();
+    if (size != canvas.size()) {
+        canvas = QImage(size, QImage::Format_RGB32);
+        canvas.fill(Qt::white);
+        update();
+        updateGeometry();
+    }
 }

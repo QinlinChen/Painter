@@ -33,7 +33,7 @@ SOURCES += \
     polygon.cpp \
     ellipse.cpp \
     curve.cpp \
-    resetcanvasdialog.cpp
+    qsizedialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,7 +43,7 @@ HEADERS += \
     polygon.h \
     ellipse.h \
     curve.h \
-    resetcanvasdialog.h
+    qsizedialog.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -54,4 +54,4 @@ RESOURCES += \
     painter.qrc
 
 FORMS += \
-    resetcanvasdialog.ui
+    qsizedialog.ui

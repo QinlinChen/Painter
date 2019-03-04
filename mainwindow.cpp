@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "painter.h"
-#include "resetcanvasdialog.h"
+#include "qsizedialog.h"
 
 #include <QtWidgets>
 
@@ -200,11 +200,11 @@ void MainWindow::drawCurve()
 
 void MainWindow::resetCanvas()
 {
-    ResetCanvasDialog dialog(this);
-    dialog.setCurrentCanvasSize(painter->getCanvasSize());
-
-    if (dialog.exec()) {
-        painter->setCanvasSize(dialog.selectedCanvasSize());
+    QSize size = QSizeDialog::getSize(QSize(4096, 2160),
+                                      painter->getCanvasSize(),
+                                      this, "Reset Canvas");
+    if (!size.isEmpty()) {
+        painter->setCanvasSize(size);
     }
 }
 
