@@ -18,6 +18,8 @@ public:
 
     QSize sizeHint() const;
 
+    void clear();
+
     QSize getCanvasSize() const { return canvas.size(); }
     void setCanvasSize(const QSize &size);
     bool saveCanvas(const QString &fileName);
@@ -28,6 +30,8 @@ public:
     int getCurrentMode() const { return curMode; }
     void setCurrentMode(int mode);
 
+    void setCurrentShape(Shape *shape);
+
     // enum for curMode
     enum {
         DRAW_LINE_MODE, DRAW_POLYGON_MODE, DRAW_ELLIPSE_MODE,
@@ -36,6 +40,7 @@ public:
 
 signals:
     void shapeAdded(Shape *);
+    void currentShapeChanged(Shape *);
 
 public slots:
 
@@ -53,7 +58,9 @@ private:
 
     void clearCanvas();
     void addShape(Shape *shape);
+    void addShapeAndFocus(Shape *shape);
     void drawShapes();
+    void clearShapes();
 
     // enum for whatIsDoingNow
     enum {
@@ -65,7 +72,9 @@ private:
     QColor penColor;
     int curMode;
     int whatIsDoingNow;
+
     QList<Shape *> shapes;
+    Shape *curShape;
 
     // varibles for drawing lines
     QPoint p1, p2;

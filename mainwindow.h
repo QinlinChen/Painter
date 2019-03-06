@@ -5,11 +5,13 @@
 #include <QIcon>
 #include <QColor>
 #include <QSize>
+#include <QMap>
 
 class QAction;
 class QMenu;
 class QToolBar;
 class QListWidget;
+class QListWidgetItem;
 class Painter;
 class Shape;
 
@@ -35,6 +37,8 @@ private slots:
     void about();
 
     void addShape(Shape *shape);
+    void setCurrentShapeForShapeList(Shape *shape);
+    void setCurrentShapeForPainter(QListWidgetItem *current);
 
 private:
     void createActions();
@@ -47,6 +51,8 @@ private:
                                    const QSize &size = QSize(32, 32));
 
     QListWidget *shapeList;
+    QMap<Shape *, QListWidgetItem *> shapeManager;
+
     Painter *painter;
 
     QMenu *fileMenu;

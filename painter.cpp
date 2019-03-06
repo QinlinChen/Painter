@@ -13,12 +13,20 @@ Painter::Painter(int width, int height, QWidget *parent)
     clearCanvas();
     setPenColor(Qt::black);
     setCurrentMode(DRAW_LINE_MODE);
+    setCurrentShape(nullptr);
     whatIsDoingNow = IDLE;
 }
 
 QSize Painter::sizeHint() const
 {
     return canvas.size();
+}
+
+void Painter::clear()
+{
+    setCurrentShape(nullptr);
+    clearShapes();
+    update();
 }
 
 void Painter::paintEvent(QPaintEvent * event)
@@ -118,7 +126,7 @@ void Painter::mouseReleaseEventOnDrawLineMode(QMouseEvent *event)
     if (event->button() == Qt::LeftButton
             && whatIsDoingNow == DRAWING_LINE) {
         whatIsDoingNow = IDLE;
-        addShape(new Line(p1, event->pos(), penColor, ""));
+        addShapeAndFocus(new Line(p1, event->pos(), penColor, ""));
         update();
     }
 }
@@ -161,6 +169,15 @@ void Painter::setCurrentMode(int mode)
     }
 }
 
+void Painter::setCurrentShape(Shape *shape)
+{
+    if (shape != curShape) {
+        curShape = shape;
+        emit currentShapeChanged(curShape);
+        update();
+    }
+}
+
 void Painter::clearCanvas()
 {
     canvas.fill(Qt::white);
@@ -168,8 +185,18 @@ void Painter::clearCanvas()
 
 void Painter::addShape(Shape *shape)
 {
-    shapes.append(shape);
-    emit shapeAdded(shape);
+    if (shape) {
+        /* It's better to check whether the shape added
+         * is already in the shape list. */
+        shapes.append(shape);
+        emit shapeAdded(shape);
+    }
+}
+
+void Painter::addShapeAndFocus(Shape *shape)
+{
+    addShape(shape);
+    setCurrentShape(shape);
 }
 
 void Painter::drawShapes()
@@ -177,4 +204,12 @@ void Painter::drawShapes()
     foreach(Shape *shape, shapes) {
         shape->draw(canvas);
     }
+}
+
+void Painter::clearShapes()
+{
+    foreach(Shape *shape, shapes) {
+        delete shape;
+    }
+    shapes.clear();
 }

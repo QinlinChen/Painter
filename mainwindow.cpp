@@ -12,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(painter);
     connect(painter, SIGNAL(shapeAdded(Shape *)),
             this, SLOT(addShape(Shape *)));
+    connect(painter, SIGNAL(currentShapeChanged(Shape *)),
+            this, SLOT(setCurrentShapeForShapeList(Shape *)));
 
     createActions();
     createMenus();
@@ -145,6 +147,9 @@ void MainWindow::createDockWindows()
     QDockWidget *dock = new QDockWidget(tr("Shapes"), this);
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     shapeList = new QListWidget(dock);
+    connect(shapeList, SIGNAL(currentItemChanged(QListWidgetItem *,
+                                                 QListWidgetItem *)),
+            this, SLOT(setCurrentShapeForPainter(QListWidgetItem *)));
     dock->setWidget(shapeList);
     addDockWidget(Qt::RightDockWidgetArea, dock);
     viewMenu->addAction(dock->toggleViewAction());
@@ -196,8 +201,9 @@ void MainWindow::adjustCanvasSize()
 
 void MainWindow::clear()
 {
-    // TODO
-    qDebug("clear()");
+    shapeManager.clear();
+    shapeList->clear();
+    painter->clear();
 }
 
 void MainWindow::save()
@@ -273,9 +279,40 @@ void MainWindow::about()
 void MainWindow::addShape(Shape *shape)
 {
     static int id = 1;
+    if (!shape) {
+        qDebug("addShape(nullptr)");
+        return;
+    }
+
     QString text = shape->shapeName() + " " + QString::number(id++);
     QListWidgetItem *item = new QListWidgetItem(text);
-    item->setData(Qt::UserRole, QVariant::fromValue(static_cast<void *>(shape)));
+    QVariant data = QVariant::fromValue(static_cast<void *>(shape));
+    item->setData(Qt::UserRole, data);
+
     shapeList->insertItem(0, item);
+    shapeManager.insert(shape, item);
+}
+
+void MainWindow::setCurrentShapeForShapeList(Shape *shape)
+{
+    QListWidgetItem *item = nullptr;
+    if (shape) {
+       item = shapeManager.value(shape, nullptr);
+       if (!item) {
+           qDebug("List widget item not found");
+           return;
+       }
+    }
+    shapeList->setCurrentItem(item);
+}
+
+void MainWindow::setCurrentShapeForPainter(QListWidgetItem *current)
+{
+    Shape *shape = nullptr;
+    if (current) {
+        QVariant data = current->data(Qt::UserRole);
+        shape = static_cast<Shape *>(data.value<void *>());
+    }
+    painter->setCurrentShape(shape);
 }
 

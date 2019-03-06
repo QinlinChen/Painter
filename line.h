@@ -14,11 +14,12 @@ public:
          const QColor &color, const QString &algorithm);
     ~Line() = default;
 
+    QString shapeName();
     void draw(QImage &canvas);
     void translate(int dx, int dy);
     void rotate(int x, int y, int r);
     void scale(int x, int y, int s);
-    QString shapeName();
+    QRect getRectHull();
 
 private:
     QPoint p1, p2;

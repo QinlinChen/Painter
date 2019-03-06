@@ -2,6 +2,7 @@
 #define SHAPE_H
 
 #include <QString>
+#include <QRect>
 
 class QImage;
 
@@ -16,7 +17,7 @@ public:
     virtual void translate(int dx, int dy) = 0;
     virtual void rotate(int x, int y, int r) = 0;
     virtual void scale(int x, int y, int s) = 0;
-
+    virtual QRect getRectHull() = 0;
 };
 
 #endif // SHAPE_H

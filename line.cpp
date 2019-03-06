@@ -37,3 +37,8 @@ void Line::scale(int x, int y, int s)
 {
     // TODO
 }
+
+QRect Line::getRectHull()
+{
+    return QRect(p1, p2).normalized();
+}
