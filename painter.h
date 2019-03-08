@@ -56,16 +56,32 @@ private:
     void mouseMoveEventOnDrawLineMode(QMouseEvent *event);
     void mouseReleaseEventOnDrawLineMode(QMouseEvent *event);
 
+    void paintEventOnTransformMode(QPaintEvent *event);
+    void mousePressEventOnTransformMode(QMouseEvent *event);
+    void mouseMoveEventOnTransformMode(QMouseEvent *event);
+    void mouseReleaseEventOnTransformMode(QMouseEvent *event);
+
     void clearCanvas();
     void addShape(Shape *shape);
     void addShapeAndFocus(Shape *shape);
     void drawShapes();
     void clearShapes();
+    void drawRectHull(const QRect &hull);
+
+    static QRect getRectAroundPoint(const QPoint &point, int radius);
+    static bool isClose(const QPoint &p1, const QPoint &p2, int radius);
+    static QRect topLeftScaleArea(const QRect &hull, int radius = 4);
+    static QRect topRightScaleArea(const QRect &hull, int radius = 4);
+    static QRect bottomLeftScaleArea(const QRect &hull, int radius = 4);
+    static QRect bottomRightScaleArea(const QRect &hull, int radius = 4);
+    static bool inTranslateArea(const QRect &hull, const QPoint &p);
+    static bool inRotateArea(const QRect &hull, const QPoint &p);
+    static bool inScaleArea(const QRect &hull, const QPoint &p, int radius = 4);
 
     // enum for whatIsDoingNow
     enum {
         IDLE, DRAWING_LINE, DRAWING_POLYGON, DRAWING_ELLIPSE,
-        DRAWING_CURVE, TRANSFORMING, CLIPPING,
+        DRAWING_CURVE, TRANSLATING, ROTATING, SCALING, CLIPPING,
     };
 
     QImage canvas;

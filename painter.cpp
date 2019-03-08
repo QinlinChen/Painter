@@ -37,11 +37,16 @@ void Painter::paintEvent(QPaintEvent * event)
     switch (curMode) {
     case DRAW_LINE_MODE:
         paintEventOnDrawLineMode(event); break;
-    case DRAW_POLYGON_MODE: break;
-    case DRAW_ELLIPSE_MODE: break;
-    case DRAW_CURVE_MODE: break;
-    case TRANSFORM_MODE: break;
-    case CLIP_MODE: break;
+    case DRAW_POLYGON_MODE:
+        qDebug("paintEventOnDrawPolygonMode(event)"); break;
+    case DRAW_ELLIPSE_MODE:
+        qDebug("paintEventOnDrawEllipseMode(event)"); break;
+    case DRAW_CURVE_MODE:
+        qDebug("paintEventOnDrawCurveMode(event)"); break;
+    case TRANSFORM_MODE:
+        paintEventOnTransformMode(event); break;
+    case CLIP_MODE:
+        qDebug("paintEventOnClipMode(event)"); break;
     default:
         qFatal("Should not reach here"); break;
     }
@@ -56,11 +61,16 @@ void Painter::mousePressEvent(QMouseEvent *event)
     switch (curMode) {
     case DRAW_LINE_MODE:
         mousePressEventOnDrawLineMode(event); break;
-    case DRAW_POLYGON_MODE: break;
-    case DRAW_ELLIPSE_MODE: break;
-    case DRAW_CURVE_MODE: break;
-    case TRANSFORM_MODE: break;
-    case CLIP_MODE: break;
+    case DRAW_POLYGON_MODE:
+        qDebug("mousePressEventOnDrawPolygonMode(event)"); break;
+    case DRAW_ELLIPSE_MODE:
+        qDebug("mousePressEventOnDrawEllipseMode(event)"); break;
+    case DRAW_CURVE_MODE:
+        qDebug("mousePressEventOnDrawCurveMode(event)"); break;
+    case TRANSFORM_MODE:
+        mousePressEventOnTransformMode(event); break;
+    case CLIP_MODE:
+        qDebug("mousePressEventOnClipMode(event)"); break;
     default:
         qFatal("Should not reach here"); break;
     }
@@ -72,11 +82,16 @@ void Painter::mouseMoveEvent(QMouseEvent *event)
     switch (curMode) {
     case DRAW_LINE_MODE:
         mouseMoveEventOnDrawLineMode(event); break;
-    case DRAW_POLYGON_MODE: break;
-    case DRAW_ELLIPSE_MODE: break;
-    case DRAW_CURVE_MODE: break;
-    case TRANSFORM_MODE: break;
-    case CLIP_MODE: break;
+    case DRAW_POLYGON_MODE:
+        qDebug("mouseMoveEventOnDrawPolygonMode(event)"); break;
+    case DRAW_ELLIPSE_MODE:
+        qDebug("mouseMoveEventOnDrawEllipseMode(event)"); break;
+    case DRAW_CURVE_MODE:
+        qDebug("mouseMoveEventOnDrawCurveMode(event)"); break;
+    case TRANSFORM_MODE:
+        mouseMoveEventOnTransformMode(event); break;
+    case CLIP_MODE:
+        qDebug("mouseMoveEventOnClipMode(event)"); break;
     default:
         qFatal("Should not reach here"); break;
     }
@@ -88,11 +103,16 @@ void Painter::mouseReleaseEvent(QMouseEvent * event)
     switch (curMode) {
     case DRAW_LINE_MODE:
         mouseReleaseEventOnDrawLineMode(event); break;
-    case DRAW_POLYGON_MODE: break;
-    case DRAW_ELLIPSE_MODE: break;
-    case DRAW_CURVE_MODE: break;
-    case TRANSFORM_MODE: break;
-    case CLIP_MODE: break;
+    case DRAW_POLYGON_MODE:
+        qDebug("mouseReleaseEventOnDrawPolygonMode(event)"); break;
+    case DRAW_ELLIPSE_MODE:
+        qDebug("mouseReleaseEventOnDrawEllipseMode(event)"); break;
+    case DRAW_CURVE_MODE:
+        qDebug("mouseReleaseEventOnDrawCurveMode(event)"); break;
+    case TRANSFORM_MODE:
+        mouseReleaseEventOnTransformMode(event); break;
+    case CLIP_MODE:
+        qDebug("mouseReleaseEventOnClipMode(event)"); break;
     default:
         qFatal("Should not reach here"); break;
     }
@@ -107,6 +127,7 @@ void Painter::paintEventOnDrawLineMode(QPaintEvent * /* event */)
 
 void Painter::mousePressEventOnDrawLineMode(QMouseEvent *event)
 {
+    Q_ASSERT(whatIsDoingNow == IDLE);
     if (event->button() == Qt::LeftButton) {
         whatIsDoingNow = DRAWING_LINE;
         p1 = event->pos();
@@ -123,11 +144,118 @@ void Painter::mouseMoveEventOnDrawLineMode(QMouseEvent *event)
 
 void Painter::mouseReleaseEventOnDrawLineMode(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton
-            && whatIsDoingNow == DRAWING_LINE) {
-        whatIsDoingNow = IDLE;
-        addShapeAndFocus(new Line(p1, event->pos(), penColor, ""));
+    if (event->button() == Qt::LeftButton) {
+        if (whatIsDoingNow == DRAWING_LINE) {
+            whatIsDoingNow = IDLE;
+            if (!isClose(p1, event->pos(), 10)) {
+                addShapeAndFocus(new Line(p1, event->pos(), penColor, ""));
+            }
+            update();
+        }
+    }
+}
+
+void Painter::paintEventOnTransformMode(QPaintEvent * /* event */)
+{
+    if (curShape) {
+        drawRectHull(curShape->getRectHull());
+    }
+}
+
+void Painter::mousePressEventOnTransformMode(QMouseEvent *event)
+{
+    Q_ASSERT(whatIsDoingNow == IDLE);
+    if (event->button() == Qt::LeftButton && curShape) {
+        QRect hull = curShape->getRectHull();
+        QPoint mousePos = event->pos();
+        /* Judgement sequence matters! */
+        if (inScaleArea(hull, mousePos)) {
+            whatIsDoingNow = SCALING;
+            // TODO
+            qDebug("begin scaling");
+        }
+        else if (inTranslateArea(hull, mousePos)) {
+            whatIsDoingNow = TRANSLATING;
+            p1 = mousePos;
+        }
+        else if (inRotateArea(hull, mousePos)) {
+            whatIsDoingNow = ROTATING;
+            // TODO
+            qDebug("begin rotating");
+        }
+        else {
+            // Do nothing
+        }
+    }
+}
+
+void Painter::mouseMoveEventOnTransformMode(QMouseEvent *event)
+{
+    if (!curShape)
+        return;
+
+    QPoint mousePos = event->pos();
+    if (whatIsDoingNow == IDLE) {
+        QRect hull = curShape->getRectHull();
+        if (topLeftScaleArea(hull).contains(mousePos)
+                || bottomRightScaleArea(hull).contains(mousePos)) {
+            setCursor(Qt::SizeFDiagCursor);
+        }
+        else if (topRightScaleArea(hull).contains(mousePos)
+                 || bottomLeftScaleArea(hull).contains(mousePos)) {
+            setCursor(Qt::SizeBDiagCursor);
+        }
+        else if (inTranslateArea(hull, mousePos)) {
+            setCursor(Qt::SizeAllCursor);
+        }
+        else if (inRotateArea(hull, mousePos)) {
+            // TODO: replace the method below by setCursor(rotateCursor)
+            unsetCursor();
+        }
+        else {
+            unsetCursor();
+        }
+    }
+    else if (whatIsDoingNow == SCALING) {
+        // TODO
+        qDebug("scaling");
+    }
+    else if (whatIsDoingNow == TRANSLATING) {
+        p2 = mousePos;
+        curShape->translate(p2.x() - p1.x(), p2.y() - p1.y());
+        p1 = p2;
         update();
+    }
+    else if (whatIsDoingNow == ROTATING) {
+        // TODO
+        qDebug("rotating");
+    }
+    else {
+        Q_ASSERT(false); // Should not reach here
+    }
+}
+
+void Painter::mouseReleaseEventOnTransformMode(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        if (whatIsDoingNow == TRANSLATING) {
+            whatIsDoingNow = IDLE;
+            p2 = event->pos();
+            curShape->translate(p2.x() - p1.x(), p2.y() - p1.y());
+            update();
+        }
+        else if (whatIsDoingNow == ROTATING) {
+            whatIsDoingNow = IDLE;
+            // TODO
+            qDebug("stop rotating");
+        }
+        else if (whatIsDoingNow == SCALING) {
+            whatIsDoingNow = IDLE;
+            qDebug("stop scaling");
+        }
+        else {
+            Q_ASSERT(false); // Should not reach here.
+        }
     }
 }
 
@@ -159,13 +287,22 @@ void Painter::setCurrentMode(int mode)
         case DRAW_POLYGON_MODE: /* fall through */
         case DRAW_ELLIPSE_MODE: /* fall through */
         case DRAW_CURVE_MODE:
-            setCursor(Qt::CrossCursor); break;
-        case TRANSFORM_MODE: /* fall through */
+            setMouseTracking(false);
+            setCursor(Qt::CrossCursor);
+            break;
+        case TRANSFORM_MODE:
+            setMouseTracking(true);
+            unsetCursor();
+            break;
         case CLIP_MODE:
-            unsetCursor(); break;
+            // TODO
+            setMouseTracking(false);
+            unsetCursor();
+            break;
         default:
             qFatal("Should not reach here"); break;
         }
+        update();
     }
 }
 
@@ -212,4 +349,65 @@ void Painter::clearShapes()
         delete shape;
     }
     shapes.clear();
+}
+
+void Painter::drawRectHull(const QRect &hull)
+{
+    QPainter painter(&canvas);
+    painter.drawRect(hull);
+    painter.drawRect(topLeftScaleArea(hull));
+    painter.drawRect(topRightScaleArea(hull));
+    painter.drawRect(bottomLeftScaleArea(hull));
+    painter.drawRect(bottomRightScaleArea(hull));
+    painter.drawEllipse(hull.center(), 3, 3);
+    painter.drawPoint(hull.center());
+}
+
+QRect Painter::getRectAroundPoint(const QPoint &point, int radius)
+{
+    return QRect(point.x() - radius, point.y() - radius,
+                 2 * radius, 2 * radius).normalized();
+}
+
+bool Painter::isClose(const QPoint &p1, const QPoint &p2, int radius)
+{
+    return getRectAroundPoint(p1, radius).contains(p2);
+}
+
+QRect Painter::topLeftScaleArea(const QRect &hull, int radius)
+{
+    return getRectAroundPoint(hull.topLeft(), radius);
+}
+
+QRect Painter::topRightScaleArea(const QRect &hull, int radius)
+{
+    return getRectAroundPoint(hull.topRight(), radius);
+}
+
+QRect Painter::bottomLeftScaleArea(const QRect &hull, int radius)
+{
+    return getRectAroundPoint(hull.bottomLeft(), radius);
+}
+
+QRect Painter::bottomRightScaleArea(const QRect &hull, int radius)
+{
+    return getRectAroundPoint(hull.bottomRight(), radius);
+}
+
+bool Painter::inTranslateArea(const QRect &hull, const QPoint &p)
+{
+    return hull.contains(p);
+}
+
+bool Painter::inRotateArea(const QRect &hull, const QPoint &p)
+{
+    return !hull.contains(p);
+}
+
+bool Painter::inScaleArea(const QRect &hull, const QPoint &p, int radius)
+{
+    return topLeftScaleArea(hull).contains(p, radius)
+            || topRightScaleArea(hull).contains(p, radius)
+            || bottomLeftScaleArea(hull).contains(p, radius)
+            || bottomRightScaleArea(hull).contains(p, radius);
 }
