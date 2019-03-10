@@ -36,7 +36,10 @@ void Line::rotate(int x, int y, float r)
 
 void Line::scale(int x, int y, float s)
 {
-    // TODO
+    p1.rx() = static_cast<int>(s * (p1.x() - x) + x);
+    p1.ry() = static_cast<int>(s * (p1.y() - y) + y);
+    p2.rx() = static_cast<int>(s * (p2.x() - x) + x);
+    p2.ry() = static_cast<int>(s * (p2.y() - y) + y);
 }
 
 QRect Line::getRectHull()

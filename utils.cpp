@@ -9,5 +9,5 @@ QRect Utils::getRectAroundPoint(const QPoint &point, int radius)
 bool Utils::isClose(const QPoint &p1, const QPoint &p2, int radius)
 {
     QPoint dist = p1 - p2;
-    return qAbs(dist.x()) <= radius || qAbs(dist.y()) <= radius;
+    return qAbs(dist.x()) <= radius && qAbs(dist.y()) <= radius;
 }

@@ -69,14 +69,15 @@ private:
     void drawRectHull(const QRect &hull);
     void drawCenter(const QPoint &p);
 
+    float calculateScale(const QPoint &center, const QPoint &b, const QPoint &e);
     static QRect topLeftScaleArea(const QRect &hull, int radius = 4);
     static QRect topRightScaleArea(const QRect &hull, int radius = 4);
     static QRect bottomLeftScaleArea(const QRect &hull, int radius = 4);
     static QRect bottomRightScaleArea(const QRect &hull, int radius = 4);
-    static bool inTranslateArea(const QRect &hull, const QPoint &p);
-    static bool inRotateArea(const QRect &hull, const QPoint &p);
-    static bool inScaleArea(const QRect &hull, const QPoint &p, int radius = 4);
     static bool inMoveCenterArea(const QPoint &p, const QPoint &pos, int radius = 4);
+    static bool inScaleArea(const QRect &hull, const QPoint &p, int radius = 4);
+    static bool inTranslateArea(const QRect &hull, const QPoint &p);
+    static bool inRotateArea(const QPoint &center, const QPoint &p);
 
     // enum for whatIsDoingNow
     enum {
@@ -95,8 +96,8 @@ private:
     QList<Shape *> shapes;
     Shape *curShape;
 
-    // varibles for drawing lines, translating, moving center
-    QPoint p1, p2;
+    // temporary varibles for drawing lines, translating, moving center
+    QPoint pb, pe; /* pointBegin, pointEnd */
 
 };
 

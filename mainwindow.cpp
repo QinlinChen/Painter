@@ -254,9 +254,7 @@ void MainWindow::drawCurve()
 
 void MainWindow::transform()
 {
-    // TODO
     painter->setCurrentMode(Painter::TRANSFORM_MODE);
-    qDebug("transform()");
 }
 
 void MainWindow::clip()
