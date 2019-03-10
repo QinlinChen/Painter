@@ -21,13 +21,15 @@ public:
     void scale(int x, int y, float s);
     QRect getRectHull();
     QPoint getCenter();
-    void moveCenter(int dx, int dy);
+    void setCenter(int x, int y);
 
 private:
     QPoint p1, p2;
-    QPoint deltaCenter;
     QColor c;
     QString alg;
+
+    QPoint center;
+    bool autoCenter;
 };
 
 #endif // LINE_H

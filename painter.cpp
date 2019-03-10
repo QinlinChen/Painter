@@ -1,5 +1,6 @@
 #include "painter.h"
 #include "line.h"
+#include "utils.h"
 
 #include <QtWidgets>
 
@@ -147,7 +148,7 @@ void Painter::mouseReleaseEventOnDrawLineMode(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         if (whatIsDoingNow == DRAWING_LINE) {
             whatIsDoingNow = IDLE;
-            if (!isClose(p1, event->pos(), 10)) {
+            if (!Utils::isClose(p1, event->pos(), 10)) {
                 addShapeAndFocus(new Line(p1, event->pos(), penColor, ""));
             }
             update();
@@ -227,9 +228,7 @@ void Painter::mouseMoveEventOnTransformMode(QMouseEvent *event)
         }
     }
     else if (whatIsDoingNow == MOVING_CENTER) {
-        p2 = mousePos;
-        curShape->moveCenter(p2.x() - p1.x(), p2.y() - p1.y());
-        p1 = p2;
+        curShape->setCenter(mousePos.x(), mousePos.y());
         update();
     }
     else if (whatIsDoingNow == SCALING) {
@@ -254,15 +253,15 @@ void Painter::mouseMoveEventOnTransformMode(QMouseEvent *event)
 void Painter::mouseReleaseEventOnTransformMode(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
+        QPoint mousePos = event->pos();
         if (whatIsDoingNow == MOVING_CENTER) {
             whatIsDoingNow = IDLE;
-            p2 = event->pos();
-            curShape->translate(p2.x() - p1.x(), p2.y() - p1.y());
+            curShape->setCenter(mousePos.x(), mousePos.y());
             update();
         }
         else if (whatIsDoingNow == TRANSLATING) {
             whatIsDoingNow = IDLE;
-            p2 = event->pos();
+            p2 = mousePos;
             curShape->translate(p2.x() - p1.x(), p2.y() - p1.y());
             update();
         }
@@ -390,35 +389,24 @@ void Painter::drawCenter(const QPoint &p)
     painter.drawPoint(p);
 }
 
-QRect Painter::getRectAroundPoint(const QPoint &point, int radius)
-{
-    return QRect(point.x() - radius, point.y() - radius,
-                 2 * radius, 2 * radius).normalized();
-}
-
-bool Painter::isClose(const QPoint &p1, const QPoint &p2, int radius)
-{
-    return getRectAroundPoint(p1, radius).contains(p2);
-}
-
 QRect Painter::topLeftScaleArea(const QRect &hull, int radius)
 {
-    return getRectAroundPoint(hull.topLeft(), radius);
+    return Utils::getRectAroundPoint(hull.topLeft(), radius);
 }
 
 QRect Painter::topRightScaleArea(const QRect &hull, int radius)
 {
-    return getRectAroundPoint(hull.topRight(), radius);
+    return Utils::getRectAroundPoint(hull.topRight(), radius);
 }
 
 QRect Painter::bottomLeftScaleArea(const QRect &hull, int radius)
 {
-    return getRectAroundPoint(hull.bottomLeft(), radius);
+    return Utils::getRectAroundPoint(hull.bottomLeft(), radius);
 }
 
 QRect Painter::bottomRightScaleArea(const QRect &hull, int radius)
 {
-    return getRectAroundPoint(hull.bottomRight(), radius);
+    return Utils::getRectAroundPoint(hull.bottomRight(), radius);
 }
 
 bool Painter::inTranslateArea(const QRect &hull, const QPoint &p)
@@ -441,5 +429,5 @@ bool Painter::inScaleArea(const QRect &hull, const QPoint &p, int radius)
 
 bool Painter::inMoveCenterArea(const QPoint &p, const QPoint &pos, int radius)
 {
-    return isClose(p, pos, radius);
+    return Utils::isClose(p, pos, radius);
 }

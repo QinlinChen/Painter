@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QRect>
+#include <QPoint>
 
 class QImage;
 
@@ -19,7 +20,7 @@ public:
     virtual void scale(int x, int y, float s) = 0;
     virtual QRect getRectHull() = 0;
     virtual QPoint getCenter() = 0;
-    virtual void moveCenter(int dx, int dy) = 0;
+    virtual void setCenter(int x, int y) = 0;
 };
 
 #endif // SHAPE_H

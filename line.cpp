@@ -1,10 +1,11 @@
 #include "line.h"
+#include "utils.h"
 
 #include <QPainter>
 
 Line::Line(const QPoint &point1, const QPoint &point2,
            const QColor &color, const QString &algorithm)
-    : p1(point1), p2(point2), deltaCenter(0, 0), c(color), alg(algorithm)
+    : p1(point1), p2(point2), c(color), alg(algorithm), autoCenter(true)
 {
 
 }
@@ -45,10 +46,12 @@ QRect Line::getRectHull()
 
 QPoint Line::getCenter()
 {
-    return getRectHull().center() + deltaCenter;
+    return autoCenter ? getRectHull().center() : center;
 }
 
-void Line::moveCenter(int dx, int dy)
+void Line::setCenter(int x, int y)
 {
-    deltaCenter += QPoint(dx, dy);
+    center.setX(x);
+    center.setY(y);
+    autoCenter = Utils::isClose(getRectHull().center(), center, 4);
 }

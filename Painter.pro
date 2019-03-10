@@ -33,7 +33,8 @@ SOURCES += \
     polygon.cpp \
     ellipse.cpp \
     curve.cpp \
-    qsizedialog.cpp
+    qsizedialog.cpp \
+    utils.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,7 +44,8 @@ HEADERS += \
     polygon.h \
     ellipse.h \
     curve.h \
-    qsizedialog.h
+    qsizedialog.h \
+    utils.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

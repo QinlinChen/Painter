@@ -69,8 +69,6 @@ private:
     void drawRectHull(const QRect &hull);
     void drawCenter(const QPoint &p);
 
-    static QRect getRectAroundPoint(const QPoint &point, int radius);
-    static bool isClose(const QPoint &p1, const QPoint &p2, int radius);
     static QRect topLeftScaleArea(const QRect &hull, int radius = 4);
     static QRect topRightScaleArea(const QRect &hull, int radius = 4);
     static QRect bottomLeftScaleArea(const QRect &hull, int radius = 4);
