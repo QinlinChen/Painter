@@ -15,9 +15,11 @@ public:
     virtual QString shapeName() = 0;
     virtual void draw(QImage &canvas) = 0;
     virtual void translate(int dx, int dy) = 0;
-    virtual void rotate(int x, int y, int r) = 0;
-    virtual void scale(int x, int y, int s) = 0;
+    virtual void rotate(int x, int y, float r) = 0;
+    virtual void scale(int x, int y, float s) = 0;
     virtual QRect getRectHull() = 0;
+    virtual QPoint getCenter() = 0;
+    virtual void moveCenter(int dx, int dy) = 0;
 };
 
 #endif // SHAPE_H

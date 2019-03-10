@@ -4,7 +4,7 @@
 
 Line::Line(const QPoint &point1, const QPoint &point2,
            const QColor &color, const QString &algorithm)
-    : p1(point1), p2(point2), c(color), alg(algorithm)
+    : p1(point1), p2(point2), deltaCenter(0, 0), c(color), alg(algorithm)
 {
 
 }
@@ -28,12 +28,12 @@ void Line::translate(int dx, int dy)
     p2 += delta;
 }
 
-void Line::rotate(int x, int y, int r)
+void Line::rotate(int x, int y, float r)
 {
     // TODO
 }
 
-void Line::scale(int x, int y, int s)
+void Line::scale(int x, int y, float s)
 {
     // TODO
 }
@@ -41,4 +41,14 @@ void Line::scale(int x, int y, int s)
 QRect Line::getRectHull()
 {
     return QRect(p1, p2).normalized();
+}
+
+QPoint Line::getCenter()
+{
+    return getRectHull().center() + deltaCenter;
+}
+
+void Line::moveCenter(int dx, int dy)
+{
+    deltaCenter += QPoint(dx, dy);
 }

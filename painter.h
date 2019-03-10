@@ -67,6 +67,7 @@ private:
     void drawShapes();
     void clearShapes();
     void drawRectHull(const QRect &hull);
+    void drawCenter(const QPoint &p);
 
     static QRect getRectAroundPoint(const QPoint &point, int radius);
     static bool isClose(const QPoint &p1, const QPoint &p2, int radius);
@@ -77,11 +78,15 @@ private:
     static bool inTranslateArea(const QRect &hull, const QPoint &p);
     static bool inRotateArea(const QRect &hull, const QPoint &p);
     static bool inScaleArea(const QRect &hull, const QPoint &p, int radius = 4);
+    static bool inMoveCenterArea(const QPoint &p, const QPoint &pos, int radius = 4);
 
     // enum for whatIsDoingNow
     enum {
-        IDLE, DRAWING_LINE, DRAWING_POLYGON, DRAWING_ELLIPSE,
-        DRAWING_CURVE, TRANSLATING, ROTATING, SCALING, CLIPPING,
+        IDLE,
+        DRAWING_LINE, DRAWING_POLYGON,
+        DRAWING_ELLIPSE, DRAWING_CURVE,
+        MOVING_CENTER, TRANSLATING, ROTATING, SCALING,
+        CLIPPING,
     };
 
     QImage canvas;
@@ -92,7 +97,7 @@ private:
     QList<Shape *> shapes;
     Shape *curShape;
 
-    // varibles for drawing lines
+    // varibles for drawing lines, translating, moving center
     QPoint p1, p2;
 
 };

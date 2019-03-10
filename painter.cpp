@@ -159,6 +159,7 @@ void Painter::paintEventOnTransformMode(QPaintEvent * /* event */)
 {
     if (curShape) {
         drawRectHull(curShape->getRectHull());
+        drawCenter(curShape->getCenter());
     }
 }
 
@@ -167,9 +168,14 @@ void Painter::mousePressEventOnTransformMode(QMouseEvent *event)
     Q_ASSERT(whatIsDoingNow == IDLE);
     if (event->button() == Qt::LeftButton && curShape) {
         QRect hull = curShape->getRectHull();
+        QPoint center = curShape->getCenter();
         QPoint mousePos = event->pos();
         /* Judgement sequence matters! */
-        if (inScaleArea(hull, mousePos)) {
+        if (inMoveCenterArea(center, mousePos)) {
+            whatIsDoingNow = MOVING_CENTER;
+            p1 = mousePos;
+        }
+        else if (inScaleArea(hull, mousePos)) {
             whatIsDoingNow = SCALING;
             // TODO
             qDebug("begin scaling");
@@ -197,8 +203,12 @@ void Painter::mouseMoveEventOnTransformMode(QMouseEvent *event)
     QPoint mousePos = event->pos();
     if (whatIsDoingNow == IDLE) {
         QRect hull = curShape->getRectHull();
-        if (topLeftScaleArea(hull).contains(mousePos)
-                || bottomRightScaleArea(hull).contains(mousePos)) {
+        QPoint center = curShape->getCenter();
+        if (inMoveCenterArea(center, mousePos)) {
+            setCursor(Qt::ArrowCursor);
+        }
+        else if (topLeftScaleArea(hull).contains(mousePos)
+                  || bottomRightScaleArea(hull).contains(mousePos)) {
             setCursor(Qt::SizeFDiagCursor);
         }
         else if (topRightScaleArea(hull).contains(mousePos)
@@ -210,11 +220,17 @@ void Painter::mouseMoveEventOnTransformMode(QMouseEvent *event)
         }
         else if (inRotateArea(hull, mousePos)) {
             // TODO: replace the method below by setCursor(rotateCursor)
-            unsetCursor();
+            setCursor(Qt::OpenHandCursor);
         }
         else {
             unsetCursor();
         }
+    }
+    else if (whatIsDoingNow == MOVING_CENTER) {
+        p2 = mousePos;
+        curShape->moveCenter(p2.x() - p1.x(), p2.y() - p1.y());
+        p1 = p2;
+        update();
     }
     else if (whatIsDoingNow == SCALING) {
         // TODO
@@ -238,7 +254,13 @@ void Painter::mouseMoveEventOnTransformMode(QMouseEvent *event)
 void Painter::mouseReleaseEventOnTransformMode(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        if (whatIsDoingNow == TRANSLATING) {
+        if (whatIsDoingNow == MOVING_CENTER) {
+            whatIsDoingNow = IDLE;
+            p2 = event->pos();
+            curShape->translate(p2.x() - p1.x(), p2.y() - p1.y());
+            update();
+        }
+        else if (whatIsDoingNow == TRANSLATING) {
             whatIsDoingNow = IDLE;
             p2 = event->pos();
             curShape->translate(p2.x() - p1.x(), p2.y() - p1.y());
@@ -359,8 +381,13 @@ void Painter::drawRectHull(const QRect &hull)
     painter.drawRect(topRightScaleArea(hull));
     painter.drawRect(bottomLeftScaleArea(hull));
     painter.drawRect(bottomRightScaleArea(hull));
-    painter.drawEllipse(hull.center(), 3, 3);
-    painter.drawPoint(hull.center());
+}
+
+void Painter::drawCenter(const QPoint &p)
+{
+    QPainter painter(&canvas);
+    painter.drawEllipse(p, 4, 4);
+    painter.drawPoint(p);
 }
 
 QRect Painter::getRectAroundPoint(const QPoint &point, int radius)
@@ -410,4 +437,9 @@ bool Painter::inScaleArea(const QRect &hull, const QPoint &p, int radius)
             || topRightScaleArea(hull).contains(p, radius)
             || bottomLeftScaleArea(hull).contains(p, radius)
             || bottomRightScaleArea(hull).contains(p, radius);
+}
+
+bool Painter::inMoveCenterArea(const QPoint &p, const QPoint &pos, int radius)
+{
+    return isClose(p, pos, radius);
 }

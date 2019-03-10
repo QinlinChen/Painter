@@ -17,12 +17,15 @@ public:
     QString shapeName();
     void draw(QImage &canvas);
     void translate(int dx, int dy);
-    void rotate(int x, int y, int r);
-    void scale(int x, int y, int s);
+    void rotate(int x, int y, float r);
+    void scale(int x, int y, float s);
     QRect getRectHull();
+    QPoint getCenter();
+    void moveCenter(int dx, int dy);
 
 private:
     QPoint p1, p2;
+    QPoint deltaCenter;
     QColor c;
     QString alg;
 };
