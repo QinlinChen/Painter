@@ -22,8 +22,8 @@ public:
 
     void draw(QImage &canvas);
     void translate(const QPoint &d);
-    void rotate(const QPoint &c, float r);
-    void scale(const QPoint &c, float s);
+    void rotate(const QPoint &c, double r);
+    void scale(const QPoint &c, double s);
 
     QRect getRectHull();
 

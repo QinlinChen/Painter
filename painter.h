@@ -69,8 +69,8 @@ private:
     void drawRectHull(const QRect &hull);
     void drawCenter(const QPoint &p);
 
-    static float calculateScale(const QPoint &fixedCenter, const QPoint &pb, const QPoint &pe);
-    static float calculateRotate(const QPoint &fixedCenter, const QPoint &pb, const QPoint &pe);
+    static double calculateScale(const QPoint &fixedCenter, const QPoint &pb, const QPoint &pe);
+    static double calculateRotate(const QPoint &fixedCenter, const QPoint &pb, const QPoint &pe);
 
     static QRect topLeftScaleArea(const QRect &hull, int radius = 4);
     static QRect topRightScaleArea(const QRect &hull, int radius = 4);

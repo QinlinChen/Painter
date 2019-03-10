@@ -21,8 +21,8 @@ public:
 
     virtual void draw(QImage &canvas) = 0;
     virtual void translate(const QPoint &d) = 0;
-    virtual void rotate(const QPoint &c, float r) = 0;
-    virtual void scale(const QPoint &c, float s) = 0;
+    virtual void rotate(const QPoint &c, double r) = 0;
+    virtual void scale(const QPoint &c, double s) = 0;
 
     virtual QRect getRectHull() = 0;
 

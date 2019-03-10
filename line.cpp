@@ -53,20 +53,27 @@ void Line::translate(const QPoint &d)
     }
 }
 
-void Line::rotate(const QPoint &c, float r)
-{
-    // TODO
-}
-
-void Line::scale(const QPoint &c, float s)
+void Line::rotate(const QPoint &c, double r)
 {
     if (duringTransaction) {
-        p1 = Utils::pointScale(oldp1, c, s);
-        p2 = Utils::pointScale(oldp2, c, s);
+        p1 = Utils::rotatePoint(oldp1, c, r);
+        p2 = Utils::rotatePoint(oldp2, c, r);
     }
     else {
-        p1 = Utils::pointScale(p1, c, s);
-        p2 = Utils::pointScale(p2, c, s);
+        p1 = Utils::rotatePoint(p1, c, r);
+        p2 = Utils::rotatePoint(p2, c, r);
+    }
+}
+
+void Line::scale(const QPoint &c, double s)
+{
+    if (duringTransaction) {
+        p1 = Utils::scalePoint(oldp1, c, s);
+        p2 = Utils::scalePoint(oldp2, c, s);
+    }
+    else {
+        p1 = Utils::scalePoint(p1, c, s);
+        p2 = Utils::scalePoint(p2, c, s);
     }
 }
 
