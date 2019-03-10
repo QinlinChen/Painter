@@ -5,7 +5,7 @@
 
 Line::Line(const QPoint &point1, const QPoint &point2,
            const QColor &color, const QString &algorithm)
-    : p1(point1), p2(point2), c(color), alg(algorithm), autoCenter(true)
+    : p1(point1), p2(point2), c(color), alg(algorithm)
 {
 
 }
@@ -15,6 +15,25 @@ QString Line::shapeName()
     return "Line";
 }
 
+void Line::beginTransaction()
+{
+    oldp1 = p1;
+    oldp2 = p2;
+    Shape::beginTransaction();
+}
+
+void Line::commitTransaction()
+{
+    Shape::commitTransaction();
+}
+
+void Line::rollbackTransaction()
+{
+    p1 = oldp1;
+    p2 = oldp2;
+    Shape::rollbackTransaction();
+}
+
 void Line::draw(QImage &canvas)
 {
     QPainter painter(&canvas);
@@ -22,39 +41,36 @@ void Line::draw(QImage &canvas)
     painter.drawLine(p1, p2);
 }
 
-void Line::translate(int dx, int dy)
+void Line::translate(const QPoint &d)
 {
-    QPoint delta(dx, dy);
-    p1 += delta;
-    p2 += delta;
+    if (duringTransaction) {
+        p1 = oldp1 + d;
+        p2 = oldp2 + d;
+    }
+    else {
+        p1 += d;
+        p2 += d;
+    }
 }
 
-void Line::rotate(int x, int y, float r)
+void Line::rotate(const QPoint &c, float r)
 {
     // TODO
 }
 
-void Line::scale(int x, int y, float s)
+void Line::scale(const QPoint &c, float s)
 {
-    p1.rx() = static_cast<int>(s * (p1.x() - x) + x);
-    p1.ry() = static_cast<int>(s * (p1.y() - y) + y);
-    p2.rx() = static_cast<int>(s * (p2.x() - x) + x);
-    p2.ry() = static_cast<int>(s * (p2.y() - y) + y);
+    if (duringTransaction) {
+        p1 = Utils::pointScale(oldp1, c, s);
+        p2 = Utils::pointScale(oldp2, c, s);
+    }
+    else {
+        p1 = Utils::pointScale(p1, c, s);
+        p2 = Utils::pointScale(p2, c, s);
+    }
 }
 
 QRect Line::getRectHull()
 {
     return QRect(p1, p2).normalized();
-}
-
-QPoint Line::getCenter()
-{
-    return autoCenter ? getRectHull().center() : center;
-}
-
-void Line::setCenter(int x, int y)
-{
-    center.setX(x);
-    center.setY(y);
-    autoCenter = Utils::isClose(getRectHull().center(), center, 4);
 }

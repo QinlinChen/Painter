@@ -69,7 +69,9 @@ private:
     void drawRectHull(const QRect &hull);
     void drawCenter(const QPoint &p);
 
-    float calculateScale(const QPoint &center, const QPoint &b, const QPoint &e);
+    static float calculateScale(const QPoint &fixedCenter, const QPoint &pb, const QPoint &pe);
+    static float calculateRotate(const QPoint &fixedCenter, const QPoint &pb, const QPoint &pe);
+
     static QRect topLeftScaleArea(const QRect &hull, int radius = 4);
     static QRect topRightScaleArea(const QRect &hull, int radius = 4);
     static QRect bottomLeftScaleArea(const QRect &hull, int radius = 4);
@@ -77,7 +79,7 @@ private:
     static bool inMoveCenterArea(const QPoint &p, const QPoint &pos, int radius = 4);
     static bool inScaleArea(const QRect &hull, const QPoint &p, int radius = 4);
     static bool inTranslateArea(const QRect &hull, const QPoint &p);
-    static bool inRotateArea(const QPoint &center, const QPoint &p);
+    static bool inRotateArea(const QPoint &fixedCenter, const QPoint &p);
 
     // enum for whatIsDoingNow
     enum {
@@ -98,6 +100,7 @@ private:
 
     // temporary varibles for drawing lines, translating, moving center
     QPoint pb, pe; /* pointBegin, pointEnd */
+    QPoint fixedCenter; /* Fix the center when scaling, rotating, etc. */
 
 };
 

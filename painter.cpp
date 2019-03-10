@@ -3,6 +3,7 @@
 #include "utils.h"
 
 #include <QtWidgets>
+#include <QtMath>
 
 Painter::Painter(int width, int height, QWidget *parent)
     : QWidget(parent)
@@ -169,9 +170,10 @@ void Painter::mousePressEventOnTransformMode(QMouseEvent *event)
 {
     Q_ASSERT(whatIsDoingNow == IDLE);
     if (event->button() == Qt::LeftButton && curShape) {
-        QRect hull = curShape->getRectHull();
         QPoint center = curShape->getCenter();
+        QRect hull = curShape->getRectHull();
         QPoint mousePos = event->pos();
+
         /* Judgement sequence matters! */
         if (inMoveCenterArea(center, mousePos)) {
             whatIsDoingNow = MOVING_CENTER;
@@ -179,7 +181,9 @@ void Painter::mousePressEventOnTransformMode(QMouseEvent *event)
         }
         else if (inScaleArea(hull, mousePos)) {
             whatIsDoingNow = SCALING;
+            curShape->beginTransaction();
             pb = mousePos;
+            fixedCenter = center;
         }
         else if (inTranslateArea(hull, mousePos)) {
             whatIsDoingNow = TRANSLATING;
@@ -188,7 +192,7 @@ void Painter::mousePressEventOnTransformMode(QMouseEvent *event)
         else if (inRotateArea(center, mousePos)) {
             whatIsDoingNow = ROTATING;
             // TODO
-            qDebug() <<"begin rotating" << mousePos << " " << inScaleArea(hull, mousePos);
+            qDebug("begin rotating");
         }
         else {
             // Do nothing
@@ -202,9 +206,11 @@ void Painter::mouseMoveEventOnTransformMode(QMouseEvent *event)
         return;
 
     QPoint mousePos = event->pos();
+
     if (whatIsDoingNow == IDLE) {
         QRect hull = curShape->getRectHull();
         QPoint center = curShape->getCenter();
+
         if (inMoveCenterArea(center, mousePos)) {
             setCursor(Qt::ArrowCursor);
         }
@@ -228,16 +234,18 @@ void Painter::mouseMoveEventOnTransformMode(QMouseEvent *event)
         }
     }
     else if (whatIsDoingNow == MOVING_CENTER) {
-        curShape->setCenter(mousePos.x(), mousePos.y());
+        curShape->setCenter(mousePos);
         update();
     }
     else if (whatIsDoingNow == SCALING) {
+        float s = calculateScale(fixedCenter, pb, mousePos);
+        curShape->scale(fixedCenter, s);
+        update();
         // Do nothing
     }
     else if (whatIsDoingNow == TRANSLATING) {
-        pe = mousePos;
-        curShape->translate(pe.x() - pb.x(), pe.y() - pb.y());
-        pb = pe;
+        curShape->translate(mousePos - pb);
+        pb = mousePos;
         update();
     }
     else if (whatIsDoingNow == ROTATING) {
@@ -252,18 +260,17 @@ void Painter::mouseReleaseEventOnTransformMode(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton && curShape) {
         QPoint mousePos = event->pos();
-        QPoint center = curShape->getCenter();
+
         if (whatIsDoingNow == MOVING_CENTER) {
-            curShape->setCenter(mousePos.x(), mousePos.y());
+            curShape->setCenter(mousePos);
         }
         else if (whatIsDoingNow == TRANSLATING) {
-            pe = mousePos;
-            curShape->translate(pe.x() - pb.x(), pe.y() - pb.y());
+            curShape->translate(mousePos - pb);
         }
         else if (whatIsDoingNow == SCALING) {
-            pe = mousePos;
-            float scale = calculateScale(center, pb, pe);
-            curShape->scale(center.x(), center.y(), scale);
+            float s = calculateScale(fixedCenter, pb, mousePos);
+            curShape->scale(fixedCenter, s);
+            curShape->commitTransaction();
         }
         else if (whatIsDoingNow == ROTATING) {
             whatIsDoingNow = IDLE;
@@ -387,12 +394,19 @@ void Painter::drawCenter(const QPoint &p)
     painter.drawPoint(p);
 }
 
-float Painter::calculateScale(const QPoint &center, const QPoint &b, const QPoint &e)
+float Painter::calculateScale(const QPoint &center, const QPoint &pb, const QPoint &pe)
 {
-    QPoint vb = b - center;
-    QPoint ve = e - center;
+    QPoint vb = pb - center;
+    QPoint ve = pe - center;
     return static_cast<float>(vb.x() * ve.x() + vb.y() * ve.y())
             / (vb.x() * vb.x() + vb.y() * vb.y());
+}
+
+float Painter::calculateRotate(const QPoint &center, const QPoint &pb, const QPoint &pe)
+{
+    QPoint vb = pb - center;
+    QPoint ve = pe - center;
+    return qCos(1);
 }
 
 QRect Painter::topLeftScaleArea(const QRect &hull, int radius)
