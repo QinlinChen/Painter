@@ -53,7 +53,7 @@ void Painter::paintEvent(QPaintEvent *event)
     case TRANSFORM_MODE:
         paintEventOnTransformMode(event); break;
     case CLIP_MODE:
-        qDebug("paintEventOnClipMode(event)"); break;
+        paintEventOnClipMode(event); break;
     default:
         qFatal("Should not reach here"); break;
     }
@@ -64,7 +64,6 @@ void Painter::paintEvent(QPaintEvent *event)
 
 void Painter::mousePressEvent(QMouseEvent *event)
 {
-    // TODO
     switch (curMode) {
     case DRAW_LINE_MODE:
         mousePressEventOnDrawLineMode(event); break;
@@ -77,7 +76,7 @@ void Painter::mousePressEvent(QMouseEvent *event)
     case TRANSFORM_MODE:
         mousePressEventOnTransformMode(event); break;
     case CLIP_MODE:
-        qDebug("mousePressEventOnClipMode(event)"); break;
+        mousePressEventOnClipMode(event); break;
     default:
         qFatal("Should not reach here"); break;
     }
@@ -85,7 +84,6 @@ void Painter::mousePressEvent(QMouseEvent *event)
 
 void Painter::mouseMoveEvent(QMouseEvent *event)
 {
-    // TODO
     switch (curMode) {
     case DRAW_LINE_MODE:
         mouseMoveEventOnDrawLineMode(event); break;
@@ -98,7 +96,7 @@ void Painter::mouseMoveEvent(QMouseEvent *event)
     case TRANSFORM_MODE:
         mouseMoveEventOnTransformMode(event); break;
     case CLIP_MODE:
-        qDebug("mouseMoveEventOnClipMode(event)"); break;
+        mouseMoveEventOnClipMode(event); break;
     default:
         qFatal("Should not reach here"); break;
     }
@@ -106,7 +104,6 @@ void Painter::mouseMoveEvent(QMouseEvent *event)
 
 void Painter::mouseReleaseEvent(QMouseEvent *event)
 {
-    // TODO
     switch (curMode) {
     case DRAW_LINE_MODE:
         mouseReleaseEventOnDrawLineMode(event); break;
@@ -119,7 +116,7 @@ void Painter::mouseReleaseEvent(QMouseEvent *event)
     case TRANSFORM_MODE:
         mouseReleaseEventOnTransformMode(event); break;
     case CLIP_MODE:
-        qDebug("mouseReleaseEventOnClipMode(event)"); break;
+        mouseReleaseEventOnClipMode(event); break;
     default:
         qFatal("Should not reach here"); break;
     }
@@ -266,22 +263,26 @@ void Painter::mouseReleaseEventOnDrawEllipseMode(QMouseEvent *event)
 
 void Painter::paintEventOnDrawCurveMode(QPaintEvent * /* event */)
 {
-    qDebug("paintEventOnDrawCurveMode(event)");
+    // TODO
+    qDebug("paintEventOnDrawCurveMode()");
 }
 
-void Painter::mousePressEventOnDrawCurveMode(QMouseEvent *event)
+void Painter::mousePressEventOnDrawCurveMode(QMouseEvent * /*event*/)
 {
-    qDebug("mousePressEventOnDrawCurveMode(event)");
+    // TODO
+    qDebug("mousePressEventOnDrawCurveMode()");
 }
 
-void Painter::mouseMoveEventOnDrawCurveMode(QMouseEvent *event)
+void Painter::mouseMoveEventOnDrawCurveMode(QMouseEvent * /*event*/)
 {
-    qDebug("mouseMoveEventOnDrawCurveMode(event)");
+    // TODO
+    qDebug("mouseMoveEventOnDrawCurveMode()");
 }
 
-void Painter::mouseReleaseEventOnDrawCurveMode(QMouseEvent *event)
+void Painter::mouseReleaseEventOnDrawCurveMode(QMouseEvent * /*event*/)
 {
-    qDebug("mouseReleaseEventOnDrawCurveMode(event)");
+    // TODO
+    qDebug("mouseReleaseEventOnDrawCurveMode()");
 }
 
 void Painter::paintEventOnTransformMode(QPaintEvent * /* event */)
@@ -427,6 +428,48 @@ void Painter::mouseReleaseEventOnTransformMode(QMouseEvent *event)
     }
 }
 
+void Painter::paintEventOnClipMode(QPaintEvent * /*event*/)
+{
+    if (whatIsDoingNow == CLIPPING) {
+        QPainter painter(&canvas);
+        painter.setPen(Qt::DashLine);
+        painter.drawRect(QRect(pb, pe));
+    }
+}
+
+void Painter::mousePressEventOnClipMode(QMouseEvent *event)
+{
+    Q_ASSERT(whatIsDoingNow == IDLE);
+    if (event->button() == Qt::LeftButton) {
+        whatIsDoingNow = CLIPPING;
+        pb = event->pos();
+    }
+}
+
+void Painter::mouseMoveEventOnClipMode(QMouseEvent *event)
+{
+    if (whatIsDoingNow == CLIPPING) {
+        pe = event->pos();
+        update();
+    }
+}
+
+void Painter::mouseReleaseEventOnClipMode(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        if (whatIsDoingNow == CLIPPING) {
+            pe = event->pos();
+            if (curShape && !Utils::isClose(pb, pe, 10)) {
+                CG::Line *line = dynamic_cast<CG::Line *>(curShape);
+                if (line)
+                    line->clip(pb, pe, "");
+            }
+            whatIsDoingNow = IDLE;
+            update();
+        }
+    }
+}
+
 void Painter::setCanvasSize(const QSize &size)
 {
     if (size != canvas.size()) {
@@ -466,8 +509,8 @@ void Painter::setCurrentMode(int mode)
             unsetCursor();
             break;
         case CLIP_MODE:
-            // TODO
             setMouseTracking(false);
+            // TODO: select a more appropriate cursor
             unsetCursor();
             break;
         default:
@@ -555,14 +598,17 @@ void Painter::drawCenter(const QPoint &p)
     painter.drawPoint(p);
 }
 
-double Painter::calculateScale(const QPoint &center, const QPoint &pb, const QPoint &pe)
+double Painter::calculateScale(const QPoint &center,
+                               const QPoint &pb, const QPoint &pe)
 {
     QPoint vb = pb - center;
     QPoint ve = pe - center;
-    return static_cast<double>(Utils::innerProd(vb, ve)) / Utils::innerProd(vb, vb);
+    return static_cast<double>(Utils::innerProd(vb, ve))
+            / Utils::innerProd(vb, vb);
 }
 
-double Painter::calculateRotate(const QPoint &center, const QPoint &pb, const QPoint &pe)
+double Painter::calculateRotate(const QPoint &center,
+                                const QPoint &pb, const QPoint &pe)
 {
     QPoint vb = pb - center;
     QPoint ve = pe - center;

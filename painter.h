@@ -77,6 +77,11 @@ private:
     void mouseMoveEventOnTransformMode(QMouseEvent *event);
     void mouseReleaseEventOnTransformMode(QMouseEvent *event);
 
+    void paintEventOnClipMode(QPaintEvent *event);
+    void mousePressEventOnClipMode(QMouseEvent *event);
+    void mouseMoveEventOnClipMode(QMouseEvent *event);
+    void mouseReleaseEventOnClipMode(QMouseEvent *event);
+
     void clearCanvas();
     void addShape(CG::Shape *shape);
     void addShapeAndFocus(CG::Shape *shape);
@@ -88,8 +93,10 @@ private:
     void drawRectHull(QPainter *painter, const QRect &hull);
     void drawCenter(const QPoint &p);
 
-    static double calculateScale(const QPoint &fixedCenter, const QPoint &pb, const QPoint &pe);
-    static double calculateRotate(const QPoint &fixedCenter, const QPoint &pb, const QPoint &pe);
+    static double calculateScale(const QPoint &fixedCenter,
+                                 const QPoint &pb, const QPoint &pe);
+    static double calculateRotate(const QPoint &fixedCenter,
+                                  const QPoint &pb, const QPoint &pe);
 
     static QRect topLeftScaleArea(const QRect &hull, int radius = 4);
     static QRect topRightScaleArea(const QRect &hull, int radius = 4);
@@ -117,11 +124,11 @@ private:
     QList<CG::Shape *> shapes;
     CG::Shape *curShape;
 
-    /* temporary varibles for drawing lines, translating, moving center */
+    /* temporary varibles for drawing lines, transfroming, etc. */
     QPoint pb, pe;      /* pointBegin, pointEnd */
     QPoint fixedCenter; /* Remember the center when scaling and rotating. */
     QRect fixedHull;    /* Remember the hull when rotating. */
-    QVector<QPoint> points;
+    QVector<QPoint> points;   /* for drawing polygons */
 };
 
 #endif // PAINTER_H

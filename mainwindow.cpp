@@ -226,16 +226,12 @@ void MainWindow::drawPolygon()
 
 void MainWindow::drawEllipse()
 {
-    // TODO
     painter->setCurrentMode(Painter::DRAW_ELLIPSE_MODE);
-    qDebug("drawEllipse()");
 }
 
 void MainWindow::drawCurve()
 {
-    // TODO
     painter->setCurrentMode(Painter::DRAW_CURVE_MODE);
-    qDebug("drawCurve()");
 }
 
 void MainWindow::transform()
@@ -245,9 +241,7 @@ void MainWindow::transform()
 
 void MainWindow::clip()
 {
-    // TODO
     painter->setCurrentMode(Painter::CLIP_MODE);
-    qDebug("clip()");
 }
 
 void MainWindow::about()

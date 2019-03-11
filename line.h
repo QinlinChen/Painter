@@ -24,6 +24,8 @@ public:
     void translate(const QPoint &d);
     void scale(const QPoint &c, double s);
     void rotate(const QPoint &c, double r);
+    void clip(const QPoint &topLeft, const QPoint &bottomRight,
+              const QString &alg);
 
     QRect getRectHull();
 

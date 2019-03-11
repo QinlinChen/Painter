@@ -2,6 +2,7 @@
 #include "utils.h"
 
 #include <QPainter>
+#include <QtDebug>
 
 namespace CG {
 
@@ -72,6 +73,13 @@ void Line::rotate(const QPoint &c, double r)
         p1 = Utils::rotatePoint(p1, c, r);
         p2 = Utils::rotatePoint(p2, c, r);
     }
+}
+
+void Line::clip(const QPoint &topLeft, const QPoint &bottomRight,
+                const QString &alg)
+{
+    // TODO
+    qDebug() << "clip(" << topLeft << "," << bottomRight << "," << alg << ")";
 }
 
 QRect Line::getRectHull()
