@@ -128,7 +128,7 @@ void Painter::mouseReleaseEvent(QMouseEvent *event)
 void Painter::paintEventOnDrawLineMode(QPaintEvent * /* event */)
 {
     if (whatIsDoingNow == DRAWING_LINE) {
-        Line(pb, pe, penColor, "").draw(canvas);
+        CG::Line(pb, pe, penColor, "").draw(canvas);
     }
 }
 
@@ -155,7 +155,7 @@ void Painter::mouseReleaseEventOnDrawLineMode(QMouseEvent *event)
         if (whatIsDoingNow == DRAWING_LINE) {
             pe = event->pos();
             if (!Utils::isClose(pb, pe, 10)) {
-                addShapeAndFocus(new Line(pb, pe, penColor, ""));
+                addShapeAndFocus(new CG::Line(pb, pe, penColor, ""));
             }
             whatIsDoingNow = IDLE;
             update();
@@ -167,9 +167,9 @@ void Painter::paintEventOnDrawPolygonMode(QPaintEvent * /* event */)
 {
     if (whatIsDoingNow == DRAWING_POLYGON) {
         for (int i = 0; i < points.size() - 1; ++i) {
-            Line(points[i], points[i + 1], penColor, "").draw(canvas);
+            CG::Line(points[i], points[i + 1], penColor, "").draw(canvas);
         }
-        Line(points.back(), pe, penColor, "").draw(canvas);
+        CG::Line(points.back(), pe, penColor, "").draw(canvas);
     }
 }
 
@@ -203,7 +203,7 @@ void Painter::mouseReleaseEventOnDrawPolygonMode(QMouseEvent *event)
         Q_ASSERT(points.size() > 0);
         if (event->button() == Qt::LeftButton) {
             if (Utils::isClose(mousePos, points[0], 8)) {
-                addShapeAndFocus(new class Polygon(points, penColor, ""));
+                addShapeAndFocus(new CG::Polygon(points, penColor, ""));
                 points.clear();
                 whatIsDoingNow = IDLE;
             }
@@ -229,8 +229,7 @@ void Painter::mouseReleaseEventOnDrawPolygonMode(QMouseEvent *event)
 void Painter::paintEventOnDrawEllipseMode(QPaintEvent * /* event */)
 {
     if (whatIsDoingNow == DRAWING_ELLIPSE) {
-        class Ellipse e(pb, pe, penColor, "");
-        e.draw(canvas);
+        CG::Ellipse(pb, pe, penColor, "").draw(canvas);
     }
 }
 
@@ -257,7 +256,7 @@ void Painter::mouseReleaseEventOnDrawEllipseMode(QMouseEvent *event)
         if (whatIsDoingNow == DRAWING_ELLIPSE) {
             pe = event->pos();
             if (!Utils::isClose(pb, pe, 10)) {
-                addShapeAndFocus(new class Ellipse(pb, pe, penColor, ""));
+                addShapeAndFocus(new CG::Ellipse(pb, pe, penColor, ""));
             }
             whatIsDoingNow = IDLE;
             update();
@@ -479,7 +478,7 @@ void Painter::setCurrentMode(int mode)
     }
 }
 
-void Painter::setCurrentShape(Shape *shape)
+void Painter::setCurrentShape(CG::Shape *shape)
 {
     if (shape != curShape) {
         curShape = shape;
@@ -493,7 +492,7 @@ void Painter::clearCanvas()
     canvas.fill(Qt::white);
 }
 
-void Painter::addShape(Shape *shape)
+void Painter::addShape(CG::Shape *shape)
 {
     if (shape) {
         /* It's better to check whether the shape added
@@ -503,7 +502,7 @@ void Painter::addShape(Shape *shape)
     }
 }
 
-void Painter::addShapeAndFocus(Shape *shape)
+void Painter::addShapeAndFocus(CG::Shape *shape)
 {
     addShape(shape);
     setCurrentShape(shape);
@@ -511,14 +510,14 @@ void Painter::addShapeAndFocus(Shape *shape)
 
 void Painter::drawShapes()
 {
-    foreach(Shape *shape, shapes) {
+    for (auto shape : shapes) {
         shape->draw(canvas);
     }
 }
 
 void Painter::clearShapes()
 {
-    foreach(Shape *shape, shapes) {
+    for (auto shape : shapes) {
         delete shape;
     }
     shapes.clear();

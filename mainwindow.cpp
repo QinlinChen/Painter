@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "painter.h"
 #include "qsizedialog.h"
-#include "shape.h"
-
 #include <QtWidgets>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -10,10 +8,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     painter = new Painter(400, 300);
     setCentralWidget(painter);
-    connect(painter, SIGNAL(shapeAdded(Shape *)),
-            this, SLOT(addShape(Shape *)));
-    connect(painter, SIGNAL(currentShapeChanged(Shape *)),
-            this, SLOT(setCurrentShapeForShapeList(Shape *)));
+    connect(painter, SIGNAL(shapeAdded(CG::Shape *)),
+            this, SLOT(addShape(CG::Shape *)));
+    connect(painter, SIGNAL(currentShapeChanged(CG::Shape *)),
+            this, SLOT(setCurrentShapeForShapeList(CG::Shape *)));
 
     createActions();
     createMenus();
@@ -262,7 +260,7 @@ void MainWindow::about()
                "on them."));
 }
 
-void MainWindow::addShape(Shape *shape)
+void MainWindow::addShape(CG::Shape *shape)
 {
     static int id = 1;
     if (!shape) {
@@ -279,7 +277,7 @@ void MainWindow::addShape(Shape *shape)
     shapeManager.insert(shape, item);
 }
 
-void MainWindow::setCurrentShapeForShapeList(Shape *shape)
+void MainWindow::setCurrentShapeForShapeList(CG::Shape *shape)
 {
     QListWidgetItem *item = nullptr;
     if (shape) {
@@ -294,10 +292,10 @@ void MainWindow::setCurrentShapeForShapeList(Shape *shape)
 
 void MainWindow::setCurrentShapeForPainter(QListWidgetItem *current)
 {
-    Shape *shape = nullptr;
+    CG::Shape *shape = nullptr;
     if (current) {
         QVariant data = current->data(Qt::UserRole);
-        shape = static_cast<Shape *>(data.value<void *>());
+        shape = static_cast<CG::Shape *>(data.value<void *>());
     }
     painter->setCurrentShape(shape);
 }

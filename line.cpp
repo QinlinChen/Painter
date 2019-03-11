@@ -3,6 +3,8 @@
 
 #include <QPainter>
 
+namespace CG {
+
 Line::Line(const QPoint &point1, const QPoint &point2,
            const QColor &color, const QString &algorithm)
     : p1(point1), p2(point2), c(color), alg(algorithm)
@@ -75,4 +77,6 @@ void Line::rotate(const QPoint &c, double r)
 QRect Line::getRectHull()
 {
     return QRect(p1, p2).normalized();
+}
+
 }

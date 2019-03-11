@@ -4,6 +4,8 @@
 #include <QPainter>
 #include <QtMath>
 
+namespace CG {
+
 Ellipse::Ellipse(const QPoint &center, int rx, int ry,
                  const QColor &color, const QString &algorithm)
     : p(center), c(color), alg(algorithm)
@@ -104,4 +106,6 @@ void Ellipse::rotate(const QPoint &c, double r)
 QRect Ellipse::getRectHull()
 {
     return QRect(p.x() - rx, p.y() - ry, 2 * rx, 2 * ry);
+}
+
 }

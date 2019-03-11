@@ -7,6 +7,8 @@
 
 class QImage;
 
+namespace CG {
+
 class Shape
 {
 public:
@@ -35,5 +37,7 @@ protected:
     QPoint center;
     bool autoCenter;
 };
+
+}
 
 #endif // SHAPE_H

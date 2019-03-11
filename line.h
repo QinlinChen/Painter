@@ -5,6 +5,8 @@
 
 #include <QColor>
 
+namespace CG {
+
 class Line : public Shape
 {
 public:
@@ -33,5 +35,7 @@ private:
     /* for transaction */
     QPoint oldp1, oldp2;
 };
+
+}
 
 #endif // LINE_H

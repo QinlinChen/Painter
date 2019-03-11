@@ -1,6 +1,8 @@
 #include "shape.h"
 #include "utils.h"
 
+namespace CG {
+
 Shape::Shape()
     : duringTransaction(false), autoCenter(true)
 {
@@ -31,4 +33,6 @@ void Shape::setCenter(const QPoint &newCenter)
 {
     center = newCenter;
     autoCenter = Utils::isClose(getRectHull().center(), center, 6);
+}
+
 }

@@ -5,6 +5,8 @@
 
 #include <QColor>
 
+namespace CG {
+
 class Ellipse : public Shape
 {
 public:
@@ -37,5 +39,7 @@ private:
     QPoint oldp;
     int oldrx, oldry;
 };
+
+}
 
 #endif // ELLIPSE_H

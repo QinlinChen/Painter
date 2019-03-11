@@ -6,6 +6,8 @@
 #include <QVector>
 #include <QColor>
 
+namespace CG {
+
 class Polygon : public Shape
 {
 public:
@@ -34,5 +36,7 @@ private:
     /* for transaction */
     QVector<QPoint> oldvp;
 };
+
+}
 
 #endif // POLYGON_H

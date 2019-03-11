@@ -3,6 +3,8 @@
 
 #include <QPainter>
 
+namespace CG {
+
 Polygon::Polygon(const QVector<QPoint> &points, const QColor &color, const QString &algorithm)
     : vp(points), c(color), alg(algorithm)
 {
@@ -87,3 +89,4 @@ QRect Polygon::getRectHull()
     return QRect(topLeft, bottomRight);
 }
 
+}

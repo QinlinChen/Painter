@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "shape.h"
+
 #include <QMainWindow>
 #include <QIcon>
 #include <QColor>
@@ -13,7 +15,6 @@ class QToolBar;
 class QListWidget;
 class QListWidgetItem;
 class Painter;
-class Shape;
 
 class MainWindow : public QMainWindow
 {
@@ -36,8 +37,8 @@ private slots:
     void clip();
     void about();
 
-    void addShape(Shape *shape);
-    void setCurrentShapeForShapeList(Shape *shape);
+    void addShape(CG::Shape *shape);
+    void setCurrentShapeForShapeList(CG::Shape *shape);
     void setCurrentShapeForPainter(QListWidgetItem *current);
 
 private:
@@ -50,7 +51,7 @@ private:
                                    const QSize &size = QSize(32, 32));
 
     QListWidget *shapeList;
-    QMap<Shape *, QListWidgetItem *> shapeManager;
+    QMap<CG::Shape *, QListWidgetItem *> shapeManager;
 
     Painter *painter;
 
