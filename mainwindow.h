@@ -44,7 +44,6 @@ private:
     void createActions();
     void createMenus();
     void createDockWindows();
-    void createContextMenu();
     void createToolBars();
 
     static QIcon createIconByColor(const QColor &color,

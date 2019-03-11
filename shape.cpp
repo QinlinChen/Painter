@@ -30,5 +30,5 @@ QPoint Shape::getCenter()
 void Shape::setCenter(const QPoint &newCenter)
 {
     center = newCenter;
-    autoCenter = Utils::isClose(getRectHull().center(), center, 4);
+    autoCenter = Utils::isClose(getRectHull().center(), center, 6);
 }

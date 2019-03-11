@@ -10,11 +10,6 @@ Line::Line(const QPoint &point1, const QPoint &point2,
 
 }
 
-QString Line::shapeName()
-{
-    return "Line";
-}
-
 void Line::beginTransaction()
 {
     oldp1 = p1;
@@ -53,18 +48,6 @@ void Line::translate(const QPoint &d)
     }
 }
 
-void Line::rotate(const QPoint &c, double r)
-{
-    if (duringTransaction) {
-        p1 = Utils::rotatePoint(oldp1, c, r);
-        p2 = Utils::rotatePoint(oldp2, c, r);
-    }
-    else {
-        p1 = Utils::rotatePoint(p1, c, r);
-        p2 = Utils::rotatePoint(p2, c, r);
-    }
-}
-
 void Line::scale(const QPoint &c, double s)
 {
     if (duringTransaction) {
@@ -74,6 +57,18 @@ void Line::scale(const QPoint &c, double s)
     else {
         p1 = Utils::scalePoint(p1, c, s);
         p2 = Utils::scalePoint(p2, c, s);
+    }
+}
+
+void Line::rotate(const QPoint &c, double r)
+{
+    if (duringTransaction) {
+        p1 = Utils::rotatePoint(oldp1, c, r);
+        p2 = Utils::rotatePoint(oldp2, c, r);
+    }
+    else {
+        p1 = Utils::rotatePoint(p1, c, r);
+        p2 = Utils::rotatePoint(p2, c, r);
     }
 }
 

@@ -18,7 +18,6 @@ MainWindow::MainWindow(QWidget *parent)
     createActions();
     createMenus();
     createDockWindows();
-    createContextMenu();
     createToolBars();
 
     setWindowTitle(tr("Painter"));
@@ -155,15 +154,6 @@ void MainWindow::createDockWindows()
     viewMenu->addAction(dock->toggleViewAction());
 }
 
-void MainWindow::createContextMenu()
-{
-    painter->addAction(drawLineAction);
-    painter->addAction(drawPolygonAction);
-    painter->addAction(drawEllipseAction);
-    painter->addAction(drawCurveAction);
-    painter->setContextMenuPolicy(Qt::ActionsContextMenu);
-}
-
 void MainWindow::createToolBars()
 {
     fileToolBar = addToolBar(tr("&File"));
@@ -233,9 +223,7 @@ void MainWindow::drawLine()
 
 void MainWindow::drawPolygon()
 {
-    // TODO
     painter->setCurrentMode(Painter::DRAW_POLYGON_MODE);
-    qDebug("drawPolygon()");
 }
 
 void MainWindow::drawEllipse()

@@ -9,6 +9,7 @@
 #include <QPoint>
 #include <QColor>
 #include <QList>
+#include <QVector>
 
 class Painter : public QWidget
 {
@@ -56,6 +57,21 @@ private:
     void mouseMoveEventOnDrawLineMode(QMouseEvent *event);
     void mouseReleaseEventOnDrawLineMode(QMouseEvent *event);
 
+    void paintEventOnDrawPolygonMode(QPaintEvent *event);
+    void mousePressEventOnDrawPolygonMode(QMouseEvent *event);
+    void mouseMoveEventOnDrawPolygonMode(QMouseEvent *event);
+    void mouseReleaseEventOnDrawPolygonMode(QMouseEvent *event);
+
+    void paintEventOnDrawEllipseMode(QPaintEvent *event);
+    void mousePressEventOnDrawEllipseMode(QMouseEvent *event);
+    void mouseMoveEventOnDrawEllipseMode(QMouseEvent *event);
+    void mouseReleaseEventOnDrawEllipseMode(QMouseEvent *event);
+
+    void paintEventOnDrawCurveMode(QPaintEvent *event);
+    void mousePressEventOnDrawCurveMode(QMouseEvent *event);
+    void mouseMoveEventOnDrawCurveMode(QMouseEvent *event);
+    void mouseReleaseEventOnDrawCurveMode(QMouseEvent *event);
+
     void paintEventOnTransformMode(QPaintEvent *event);
     void mousePressEventOnTransformMode(QMouseEvent *event);
     void mouseMoveEventOnTransformMode(QMouseEvent *event);
@@ -101,10 +117,11 @@ private:
     QList<Shape *> shapes;
     Shape *curShape;
 
-    // temporary varibles for drawing lines, translating, moving center
+    /* temporary varibles for drawing lines, translating, moving center */
     QPoint pb, pe;      /* pointBegin, pointEnd */
     QPoint fixedCenter; /* Remember the center when scaling and rotating. */
     QRect fixedHull;    /* Remember the hull when rotating. */
+    QVector<QPoint> points;
 };
 
 #endif // PAINTER_H

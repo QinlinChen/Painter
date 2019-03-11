@@ -1,9 +1,13 @@
 #include "painter.h"
 #include "line.h"
+#include "polygon.h"
 #include "utils.h"
 
 #include <QtWidgets>
 #include <QtMath>
+
+#include <algorithm>
+using std::placeholders::_1;
 
 Painter::Painter(int width, int height, QWidget *parent)
     : QWidget(parent)
@@ -40,11 +44,11 @@ void Painter::paintEvent(QPaintEvent *event)
     case DRAW_LINE_MODE:
         paintEventOnDrawLineMode(event); break;
     case DRAW_POLYGON_MODE:
-        qDebug("paintEventOnDrawPolygonMode(event)"); break;
+        paintEventOnDrawPolygonMode(event); break;
     case DRAW_ELLIPSE_MODE:
-        qDebug("paintEventOnDrawEllipseMode(event)"); break;
+        paintEventOnDrawEllipseMode(event); break;
     case DRAW_CURVE_MODE:
-        qDebug("paintEventOnDrawCurveMode(event)"); break;
+        paintEventOnDrawCurveMode(event); break;
     case TRANSFORM_MODE:
         paintEventOnTransformMode(event); break;
     case CLIP_MODE:
@@ -64,11 +68,11 @@ void Painter::mousePressEvent(QMouseEvent *event)
     case DRAW_LINE_MODE:
         mousePressEventOnDrawLineMode(event); break;
     case DRAW_POLYGON_MODE:
-        qDebug("mousePressEventOnDrawPolygonMode(event)"); break;
+        mousePressEventOnDrawPolygonMode(event); break;
     case DRAW_ELLIPSE_MODE:
-        qDebug("mousePressEventOnDrawEllipseMode(event)"); break;
+        mousePressEventOnDrawEllipseMode(event); break;
     case DRAW_CURVE_MODE:
-        qDebug("mousePressEventOnDrawCurveMode(event)"); break;
+        mousePressEventOnDrawCurveMode(event); break;
     case TRANSFORM_MODE:
         mousePressEventOnTransformMode(event); break;
     case CLIP_MODE:
@@ -85,11 +89,11 @@ void Painter::mouseMoveEvent(QMouseEvent *event)
     case DRAW_LINE_MODE:
         mouseMoveEventOnDrawLineMode(event); break;
     case DRAW_POLYGON_MODE:
-        qDebug("mouseMoveEventOnDrawPolygonMode(event)"); break;
+        mouseMoveEventOnDrawPolygonMode(event); break;
     case DRAW_ELLIPSE_MODE:
-        qDebug("mouseMoveEventOnDrawEllipseMode(event)"); break;
+        mouseMoveEventOnDrawEllipseMode(event); break;
     case DRAW_CURVE_MODE:
-        qDebug("mouseMoveEventOnDrawCurveMode(event)"); break;
+        mouseMoveEventOnDrawCurveMode(event); break;
     case TRANSFORM_MODE:
         mouseMoveEventOnTransformMode(event); break;
     case CLIP_MODE:
@@ -106,11 +110,11 @@ void Painter::mouseReleaseEvent(QMouseEvent *event)
     case DRAW_LINE_MODE:
         mouseReleaseEventOnDrawLineMode(event); break;
     case DRAW_POLYGON_MODE:
-        qDebug("mouseReleaseEventOnDrawPolygonMode(event)"); break;
+        mouseReleaseEventOnDrawPolygonMode(event); break;
     case DRAW_ELLIPSE_MODE:
-        qDebug("mouseReleaseEventOnDrawEllipseMode(event)"); break;
+        mouseReleaseEventOnDrawEllipseMode(event); break;
     case DRAW_CURVE_MODE:
-        qDebug("mouseReleaseEventOnDrawCurveMode(event)"); break;
+        mouseReleaseEventOnDrawCurveMode(event); break;
     case TRANSFORM_MODE:
         mouseReleaseEventOnTransformMode(event); break;
     case CLIP_MODE:
@@ -158,17 +162,125 @@ void Painter::mouseReleaseEventOnDrawLineMode(QMouseEvent *event)
     }
 }
 
-void Painter::paintEventOnTransformMode(QPaintEvent * /* event */)
+void Painter::paintEventOnDrawPolygonMode(QPaintEvent * /* event */)
+{
+    if (whatIsDoingNow == DRAWING_POLYGON) {
+        for (int i = 0; i < points.size() - 1; ++i) {
+            Line(points[i], points[i + 1], penColor, "").draw(canvas);
+        }
+        Line(points.back(), pe, penColor, "").draw(canvas);
+    }
+}
+
+void Painter::mousePressEventOnDrawPolygonMode(QMouseEvent * /* event */)
+{
+    /* Do nothing */
+}
+
+void Painter::mouseMoveEventOnDrawPolygonMode(QMouseEvent *event)
+{
+    if (whatIsDoingNow == IDLE)
+        return;
+
+    Q_ASSERT(whatIsDoingNow == DRAWING_POLYGON);
+    pe = event->pos();
+    update();
+}
+
+void Painter::mouseReleaseEventOnDrawPolygonMode(QMouseEvent *event)
+{
+    QPoint mousePos = event->pos();
+    if (whatIsDoingNow == IDLE) {
+        if (event->button() == Qt::LeftButton) {
+            whatIsDoingNow = DRAWING_POLYGON;
+            Q_ASSERT(points.empty());
+            points.append(mousePos);
+        }
+    }
+    else { /* whatIsDoingNow == DRAWING_POLYGON */
+        Q_ASSERT(whatIsDoingNow == DRAWING_POLYGON);
+        Q_ASSERT(points.size() > 0);
+        if (event->button() == Qt::LeftButton) {
+            if (Utils::isClose(mousePos, points[0], 8)) {
+                addShapeAndFocus(new class Polygon(points, penColor, ""));
+                points.clear();
+                whatIsDoingNow = IDLE;
+            }
+            else {
+                if (std::find_if(points.begin(), points.end(),
+                                 std::bind(Utils::isClose, _1, mousePos, 6))
+                        == points.end())
+                    points.append(mousePos);
+            }
+        }
+        else if (event->button() == Qt::RightButton) {
+            points.removeLast();
+            if (points.empty())
+                whatIsDoingNow = IDLE;
+        }
+        else {
+            Q_ASSERT(false); /* Should not reach here */
+        }
+        update();
+    }
+}
+
+void Painter::paintEventOnDrawEllipseMode(QPaintEvent *event)
+{
+    qDebug("paintEventOnDrawEllipseMode(event)");
+}
+
+void Painter::mousePressEventOnDrawEllipseMode(QMouseEvent *event)
+{
+    qDebug("mousePressEventOnDrawEllipseMode(event)");
+}
+
+void Painter::mouseMoveEventOnDrawEllipseMode(QMouseEvent *event)
+{
+    qDebug("mouseMoveEventOnDrawEllipseMode(event)");
+}
+
+void Painter::mouseReleaseEventOnDrawEllipseMode(QMouseEvent *event)
+{
+    qDebug("mouseReleaseEventOnDrawEllipseMode(event)");
+}
+
+void Painter::paintEventOnDrawCurveMode(QPaintEvent *event)
+{
+    qDebug("paintEventOnDrawCurveMode(event)");
+}
+
+void Painter::mousePressEventOnDrawCurveMode(QMouseEvent *event)
+{
+    qDebug("mousePressEventOnDrawCurveMode(event)");
+}
+
+void Painter::mouseMoveEventOnDrawCurveMode(QMouseEvent *event)
+{
+    qDebug("mouseMoveEventOnDrawCurveMode(event)");
+}
+
+void Painter::mouseReleaseEventOnDrawCurveMode(QMouseEvent *event)
+{
+    qDebug("mouseReleaseEventOnDrawCurveMode(event)");
+}
+
+void Painter::paintEventOnTransformMode(QPaintEvent */* event */)
 {
     if (curShape) {
-        if (whatIsDoingNow == ROTATING) {
+        if (whatIsDoingNow == SCALING) {
+            drawRectHull(curShape->getRectHull());
+            drawCenter(fixedCenter);
+        }
+        else if (whatIsDoingNow == ROTATING) {
             double r = calculateRotate(fixedCenter, pb, pe);
             drawRectHull(fixedHull, fixedCenter, r);
+            drawCenter(fixedCenter);
         }
         else {
             drawRectHull(curShape->getRectHull());
+            drawCenter(curShape->getCenter());
         }
-        drawCenter(curShape->getCenter());
     }
 }
 
@@ -321,10 +433,13 @@ void Painter::setCurrentMode(int mode)
         curMode = mode;
         switch (curMode) {
         case DRAW_LINE_MODE:    /* fall through */
-        case DRAW_POLYGON_MODE: /* fall through */
         case DRAW_ELLIPSE_MODE: /* fall through */
         case DRAW_CURVE_MODE:
             setMouseTracking(false);
+            setCursor(Qt::CrossCursor);
+            break;
+        case DRAW_POLYGON_MODE:
+            setMouseTracking(true);
             setCursor(Qt::CrossCursor);
             break;
         case TRANSFORM_MODE:
@@ -439,7 +554,6 @@ double Painter::calculateRotate(const QPoint &center, const QPoint &pb, const QP
     double theta = qAcos(cosTheta);
     if (Utils::crossProd(vb, ve) < 0)
         theta = -theta;
-    qDebug() << vb << ve << cosTheta << theta;
     return theta;
 }
 

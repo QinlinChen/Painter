@@ -3,9 +3,7 @@
 
 #include "shape.h"
 
-#include <QPoint>
 #include <QColor>
-#include <QString>
 
 class Line : public Shape
 {
@@ -14,7 +12,7 @@ public:
          const QColor &color, const QString &algorithm);
     ~Line() = default;
 
-    QString shapeName();
+    QString shapeName() { return "Line"; }
 
     void beginTransaction();
     void commitTransaction();
@@ -22,8 +20,8 @@ public:
 
     void draw(QImage &canvas);
     void translate(const QPoint &d);
-    void rotate(const QPoint &c, double r);
     void scale(const QPoint &c, double s);
+    void rotate(const QPoint &c, double r);
 
     QRect getRectHull();
 
