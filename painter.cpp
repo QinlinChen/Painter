@@ -161,7 +161,11 @@ void Painter::mouseReleaseEventOnDrawLineMode(QMouseEvent *event)
 void Painter::paintEventOnTransformMode(QPaintEvent * /* event */)
 {
     if (curShape) {
-        if (whatIsDoingNow != ROTATING) {
+        if (whatIsDoingNow == ROTATING) {
+            double r = calculateRotate(fixedCenter, pb, pe);
+            drawRectHull(fixedHull, fixedCenter, r);
+        }
+        else {
             drawRectHull(curShape->getRectHull());
         }
         drawCenter(curShape->getCenter());
@@ -196,6 +200,7 @@ void Painter::mousePressEventOnTransformMode(QMouseEvent *event)
             curShape->beginTransaction();
             pb = mousePos;
             fixedCenter = center;
+            fixedHull = hull;
         }
         else {
             /* Do nothing */
@@ -251,13 +256,13 @@ void Painter::mouseMoveEventOnTransformMode(QMouseEvent *event)
         update();
     }
     else if (whatIsDoingNow == ROTATING) {
-        pe = mousePos;
+        pe = mousePos;   /* for paint use */
         double r = calculateRotate(fixedCenter, pb, pe);
         curShape->rotate(fixedCenter, r);
         update();
     }
     else {
-        Q_ASSERT(false); // Should not reach here
+        Q_ASSERT(false); /* Should not reach here. */
     }
 }
 
@@ -281,9 +286,10 @@ void Painter::mouseReleaseEventOnTransformMode(QMouseEvent *event)
             pe = mousePos;
             double r = calculateRotate(fixedCenter, pb, pe);
             curShape->rotate(fixedCenter, r);
+            curShape->commitTransaction();
         }
         else {
-            Q_ASSERT(false); // Should not reach here.
+            Q_ASSERT(false); /* Should not reach here. */
         }
         whatIsDoingNow = IDLE;
         update();
@@ -331,7 +337,8 @@ void Painter::setCurrentMode(int mode)
             unsetCursor();
             break;
         default:
-            qFatal("Should not reach here"); break;
+            qFatal("Should not reach here");
+            break;
         }
         update();
     }
@@ -385,11 +392,26 @@ void Painter::clearShapes()
 void Painter::drawRectHull(const QRect &hull)
 {
     QPainter painter(&canvas);
-    painter.drawRect(hull);
-    painter.drawRect(topLeftScaleArea(hull));
-    painter.drawRect(topRightScaleArea(hull));
-    painter.drawRect(bottomLeftScaleArea(hull));
-    painter.drawRect(bottomRightScaleArea(hull));
+    drawRectHull(&painter, hull);
+}
+
+void Painter::drawRectHull(const QRect &hull, const QPoint &center, double theta)
+{
+    QPainter painter(&canvas);
+    painter.translate(center);
+    painter.rotate(qRadiansToDegrees(theta));
+    QRect rect = hull;
+    rect.moveCenter(hull.center() - center);
+    drawRectHull(&painter, rect);
+}
+
+void Painter::drawRectHull(QPainter *painter, const QRect &hull)
+{
+    painter->drawRect(hull);
+    painter->drawRect(topLeftScaleArea(hull));
+    painter->drawRect(topRightScaleArea(hull));
+    painter->drawRect(bottomLeftScaleArea(hull));
+    painter->drawRect(bottomRightScaleArea(hull));
 }
 
 void Painter::drawCenter(const QPoint &p)
@@ -410,11 +432,14 @@ double Painter::calculateRotate(const QPoint &center, const QPoint &pb, const QP
 {
     QPoint vb = pb - center;
     QPoint ve = pe - center;
-    double cosTheta = Utils::innerProd(vb, ve) /
-            qSqrt(Utils::innerProd(vb, vb) * Utils::innerProd(ve, ve));
+    double be = Utils::innerProd(vb, ve);
+    double bb = Utils::innerProd(vb, vb);
+    double ee = Utils::innerProd(ve, ve);
+    double cosTheta = be / qSqrt(bb * ee);
     double theta = qAcos(cosTheta);
     if (Utils::crossProd(vb, ve) < 0)
         theta = -theta;
+    qDebug() << vb << ve << cosTheta << theta;
     return theta;
 }
 

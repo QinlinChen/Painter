@@ -66,7 +66,10 @@ private:
     void addShapeAndFocus(Shape *shape);
     void drawShapes();
     void clearShapes();
+
     void drawRectHull(const QRect &hull);
+    void drawRectHull(const QRect &hull, const QPoint &center, double theta);
+    void drawRectHull(QPainter *painter, const QRect &hull);
     void drawCenter(const QPoint &p);
 
     static double calculateScale(const QPoint &fixedCenter, const QPoint &pb, const QPoint &pe);
@@ -99,9 +102,9 @@ private:
     Shape *curShape;
 
     // temporary varibles for drawing lines, translating, moving center
-    QPoint pb, pe; /* pointBegin, pointEnd */
-    QPoint fixedCenter; /* Fix the center when scaling, rotating, etc. */
-
+    QPoint pb, pe;      /* pointBegin, pointEnd */
+    QPoint fixedCenter; /* Remember the center when scaling and rotating. */
+    QRect fixedHull;    /* Remember the hull when rotating. */
 };
 
 #endif // PAINTER_H
