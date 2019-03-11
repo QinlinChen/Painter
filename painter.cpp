@@ -1,6 +1,7 @@
 #include "painter.h"
 #include "line.h"
 #include "polygon.h"
+#include "ellipse.h"
 #include "utils.h"
 
 #include <QtWidgets>
@@ -225,27 +226,46 @@ void Painter::mouseReleaseEventOnDrawPolygonMode(QMouseEvent *event)
     }
 }
 
-void Painter::paintEventOnDrawEllipseMode(QPaintEvent *event)
+void Painter::paintEventOnDrawEllipseMode(QPaintEvent * /* event */)
 {
-    qDebug("paintEventOnDrawEllipseMode(event)");
+    if (whatIsDoingNow == DRAWING_ELLIPSE) {
+        class Ellipse e(pb, pe, penColor, "");
+        e.draw(canvas);
+    }
 }
 
 void Painter::mousePressEventOnDrawEllipseMode(QMouseEvent *event)
 {
-    qDebug("mousePressEventOnDrawEllipseMode(event)");
+    Q_ASSERT(whatIsDoingNow == IDLE);
+    if (event->button() == Qt::LeftButton) {
+        whatIsDoingNow = DRAWING_ELLIPSE;
+        pb = event->pos();
+    }
 }
 
 void Painter::mouseMoveEventOnDrawEllipseMode(QMouseEvent *event)
 {
-    qDebug("mouseMoveEventOnDrawEllipseMode(event)");
+    if (whatIsDoingNow == DRAWING_ELLIPSE) {
+        pe = event->pos();
+        update();
+    }
 }
 
 void Painter::mouseReleaseEventOnDrawEllipseMode(QMouseEvent *event)
 {
-    qDebug("mouseReleaseEventOnDrawEllipseMode(event)");
+    if (event->button() == Qt::LeftButton) {
+        if (whatIsDoingNow == DRAWING_ELLIPSE) {
+            pe = event->pos();
+            if (!Utils::isClose(pb, pe, 10)) {
+                addShapeAndFocus(new class Ellipse(pb, pe, penColor, ""));
+            }
+            whatIsDoingNow = IDLE;
+            update();
+        }
+    }
 }
 
-void Painter::paintEventOnDrawCurveMode(QPaintEvent *event)
+void Painter::paintEventOnDrawCurveMode(QPaintEvent * /* event */)
 {
     qDebug("paintEventOnDrawCurveMode(event)");
 }
@@ -265,7 +285,7 @@ void Painter::mouseReleaseEventOnDrawCurveMode(QMouseEvent *event)
     qDebug("mouseReleaseEventOnDrawCurveMode(event)");
 }
 
-void Painter::paintEventOnTransformMode(QPaintEvent */* event */)
+void Painter::paintEventOnTransformMode(QPaintEvent * /* event */)
 {
     if (curShape) {
         if (whatIsDoingNow == SCALING) {
