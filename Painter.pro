@@ -34,7 +34,8 @@ SOURCES += \
     ellipse.cpp \
     curve.cpp \
     qsizedialog.cpp \
-    utils.cpp
+    utils.cpp \
+    paintercli.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -45,7 +46,8 @@ HEADERS += \
     ellipse.h \
     curve.h \
     qsizedialog.h \
-    utils.h
+    utils.h \
+    paintercli.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
