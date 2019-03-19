@@ -1,14 +1,24 @@
 #include "paintercli.h"
+#include "line.h"
+#include "ellipse.h"
+#include "polygon.h"
+#include "curve.h"
 
 #include <QFile>
 #include <QDir>
 #include <QTextStream>
 #include <QtDebug>
+#include <QtMath>
 
 #include <iostream>
 using std::cout;
 using std::cerr;
 using std::endl;
+
+PainterCLI::~PainterCLI()
+{
+    clearShapes();
+}
 
 int PainterCLI::exec(int argc, char *argv[])
 {
@@ -23,9 +33,13 @@ int PainterCLI::exec(int argc, char *argv[])
         cerr << "Cannot open file: " << qPrintable(inFile.errorString()) << endl;
         return 1;
     }
-    QDir outDir(argv[2]);
+    QDir outDir(argv[2]), dir;
+    if (!outDir.exists() && !dir.mkdir(argv[2])) {
+        cerr << "Fail to create output directory: " << argv[2] << endl;
+        return 1;
+    }
     canvas = QImage(400, 300, QImage::Format_RGB32); /* default size */
-    color = Qt::black; /* default color */
+    curColor = Qt::black; /* default color */
 
     /* parse command */
     QTextStream in(&inFile);
@@ -186,63 +200,112 @@ int PainterCLI::exec(int argc, char *argv[])
     return 0;
 }
 
+void PainterCLI::drawShapes()
+{
+    for (auto iter = shapeManager.constBegin();
+         iter != shapeManager.constEnd(); ++iter)
+        if (iter.value())
+            iter.value()->draw(canvas);
+}
+
+void PainterCLI::clearShapes()
+{
+    for (auto iter = shapeManager.constBegin();
+         iter != shapeManager.constEnd(); ++iter)
+        if (iter.value())
+            delete iter.value();
+    shapeManager.clear();
+}
+
 void PainterCLI::resetCanvas(int width, int height)
 {
     canvas = QImage(width, height, QImage::Format_RGB32);
+    clearShapes();
 }
 
 void PainterCLI::saveCanvas(const QString &name)
 {
-    qDebug() << name;
+    canvas.fill(Qt::white);
+    drawShapes();
+    canvas.mirrored(false, true).save(name + ".bmp", "bmp");
 }
 
 void PainterCLI::setColor(const QColor &color)
 {
-    this->color = color;
+    curColor = color;
 }
 
 void PainterCLI::drawLine(int id, const QPoint &p1, const QPoint &p2,
                           const QString &alg)
 {
-    qDebug() << id << p1 << p2 << alg;
+    CG::Line *line = new CG::Line(p1, p2, curColor, alg);
+    shapeManager.insert(id, line);
 }
 
 void PainterCLI::drawPolygon(int id, const QVector<QPoint> &points,
                              const QString &alg)
 {
-    qDebug() << id << points << alg;
+    CG::Polygon *polygon = new CG::Polygon(points, curColor, alg);
+    shapeManager.insert(id, polygon);
 }
 
 void PainterCLI::drawEllipse(int id, const QPoint &center, int rx, int ry)
 {
-    qDebug() << id << center << rx << ry;
+    CG::Ellipse *ellipse = new CG::Ellipse(center, rx, ry, curColor, "");
+    shapeManager.insert(id, ellipse);
 }
 
 void PainterCLI::drawCurve(int id, const QVector<QPoint> &points,
                            const QString &alg)
 {
+    // TODO
     qDebug() << id << points << alg;
 }
 
 void PainterCLI::translate(int id, const QPoint &d)
 {
-    qDebug() << id << d;
+    CG::Shape *shape = shapeManager.value(id, nullptr);
+    if (!shape) {
+        cerr << "Cannot find shape by id: " << id << endl;
+        return;
+    }
+    shape->translate(d);
 }
 
 void PainterCLI::rotate(int id, const QPoint &c, double r)
 {
-    qDebug() << id << c << r;
+    CG::Shape *shape = shapeManager.value(id, nullptr);
+    if (!shape) {
+        cerr << "Cannot find shape by id: " << id << endl;
+        return;
+    }
+    /* r is a clockwise degree while rotate accepts
+     * anticlockwise radians. */
+    shape->rotate(c, -qDegreesToRadians(r));
 }
 
 void PainterCLI::scale(int id, const QPoint &c, double s)
 {
-    qDebug() << id << c << s;
+    CG::Shape *shape = shapeManager.value(id, nullptr);
+    if (!shape) {
+        cerr << "Cannot find shape by id: " << id << endl;
+        return;
+    }
+    shape->scale(c, s);
 }
 
 void PainterCLI::clip(int id, const QPoint &topLeft, const QPoint &bottomRight,
                       const QString &alg)
 {
-    qDebug() << id << topLeft << bottomRight << alg;
+    CG::Shape *shape = shapeManager.value(id, nullptr);
+    if (!shape) {
+        cerr << "Cannot find shape by id: " << id << endl;
+        return;
+    }
+    CG::Line *line = dynamic_cast<CG::Line *>(shape);
+    if (!line) {
+        cerr << "The shape with id " << id << " is not a Line" << endl;
+        return;
+    }
+    line->clip(topLeft, bottomRight, alg);
 }
-
-
