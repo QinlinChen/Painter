@@ -82,10 +82,10 @@ private:
     void mouseMoveEventOnClipMode(QMouseEvent *event);
     void mouseReleaseEventOnClipMode(QMouseEvent *event);
 
-    void clearCanvas();
+    static void clearCanvas(QImage &canvas);
     void addShape(CG::Shape *shape);
     void addShapeAndFocus(CG::Shape *shape);
-    void drawShapes();
+    void drawShapes(QImage &canvas);
     void clearShapes();
 
     void drawRectHull(const QRect &hull);

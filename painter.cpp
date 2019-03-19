@@ -17,7 +17,7 @@ Painter::Painter(int width, int height, QWidget *parent)
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     setCanvasSize(QSize(width, height));
-    clearCanvas();
+    clearCanvas(canvas);
     setPenColor(Qt::black);
     setCurrentMode(DRAW_LINE_MODE);
     setCurrentShape(nullptr);
@@ -38,8 +38,8 @@ void Painter::clear()
 
 void Painter::paintEvent(QPaintEvent *event)
 {
-    clearCanvas();
-    drawShapes();
+    clearCanvas(canvas);
+    drawShapes(canvas);
 
     switch (curMode) {
     case DRAW_LINE_MODE:
@@ -481,7 +481,11 @@ void Painter::setCanvasSize(const QSize &size)
 
 bool Painter::saveCanvas(const QString &fileName)
 {
-    return canvas.save(fileName);
+    QImage image(canvas.size(), QImage::Format_RGB32);
+    clearCanvas(image);
+    drawShapes(image);
+
+    return image.save(fileName);
 }
 
 void Painter::setPenColor(const QColor &color)
@@ -530,7 +534,7 @@ void Painter::setCurrentShape(CG::Shape *shape)
     }
 }
 
-void Painter::clearCanvas()
+void Painter::clearCanvas(QImage &canvas)
 {
     canvas.fill(Qt::white);
 }
@@ -551,10 +555,10 @@ void Painter::addShapeAndFocus(CG::Shape *shape)
     setCurrentShape(shape);
 }
 
-void Painter::drawShapes()
+void Painter::drawShapes(QImage &image)
 {
     for (auto shape : shapes) {
-        shape->draw(canvas);
+        shape->draw(image);
     }
 }
 
