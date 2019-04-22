@@ -1,8 +1,9 @@
 #include "polygon.h"
 #include "utils.h"
+#include "line.h"
 
 #include <QPainter>
-
+#include <QDebug>
 namespace CG {
 
 Polygon::Polygon(const QVector<QPoint> &points, const QColor &color, const QString &algorithm)
@@ -30,9 +31,37 @@ void Polygon::rollbackTransaction()
 
 void Polygon::draw(QImage &canvas)
 {
+    if (alg == "DDA")
+        drawByDDA(canvas);
+    else if (alg == "Bresenham")
+        drawByBresenham(canvas);
+    else
+        drawByDefault(canvas);
+}
+
+void Polygon::drawByDefault(QImage &canvas)
+{
     QPainter painter(&canvas);
     painter.setPen(c);
     painter.drawPolygon(vp.data(), vp.size());
+}
+
+void Polygon::drawByDDA(QImage &canvas)
+{
+    Q_ASSERT(vp.size() >= 3);
+
+    for (int i = 0; i < vp.size() - 1; ++i)
+        CG::Line(vp[i], vp[i+1], c, "DDA").draw(canvas);
+    CG::Line(vp.back(), vp.front(), c, "DDA").draw(canvas);
+}
+
+void Polygon::drawByBresenham(QImage &canvas)
+{
+    Q_ASSERT(vp.size() >= 3);
+
+    for (int i = 0; i < vp.size() - 1; ++i)
+        CG::Line(vp[i], vp[i+1], c, "Bresenham").draw(canvas);
+    CG::Line(vp.back(), vp.front(), c, "Bresenham").draw(canvas);
 }
 
 void Polygon::translate(const QPoint &d)

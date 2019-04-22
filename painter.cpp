@@ -163,6 +163,7 @@ void Painter::mouseReleaseEventOnDrawLineMode(QMouseEvent *event)
 void Painter::paintEventOnDrawPolygonMode(QPaintEvent * /* event */)
 {
     if (whatIsDoingNow == DRAWING_POLYGON) {
+        Q_ASSERT(points.size() >= 1);
         for (int i = 0; i < points.size() - 1; ++i) {
             CG::Line(points[i], points[i + 1], penColor, "").draw(canvas);
         }
@@ -199,7 +200,7 @@ void Painter::mouseReleaseEventOnDrawPolygonMode(QMouseEvent *event)
         Q_ASSERT(whatIsDoingNow == DRAWING_POLYGON);
         Q_ASSERT(points.size() > 0);
         if (event->button() == Qt::LeftButton) {
-            if (Utils::isClose(mousePos, points[0], 8)) {
+            if (Utils::isClose(mousePos, points[0], 8) && points.size() >= 3) {
                 addShapeAndFocus(new CG::Polygon(points, penColor, ""));
                 points.clear();
                 whatIsDoingNow = IDLE;

@@ -29,6 +29,10 @@ public:
     QRect getRectHull();
 
 private:
+    void drawByDefault(QImage &canvas);
+    void drawByDDA(QImage &canvas);
+    void drawByBresenham(QImage &canvas);
+
     QVector<QPoint> vp;
     QColor c;
     QString alg;
