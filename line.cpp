@@ -112,7 +112,7 @@ void Line::drawByBresenham(QImage &canvas)
         /* 0 <= m <= 1*/
         if (dy >= 0) {
             int decisionParam = 2 * dy - dx;
-            for (; x != x2; ++x) {
+            for (; x <= x2; ++x) {
                 setPixel(canvas, x, y);
                 if (decisionParam >= 0) {
                     ++y;
@@ -126,7 +126,7 @@ void Line::drawByBresenham(QImage &canvas)
         /* -1 <= m < 0 */
         else {
             int decisionParam = 2 * dy + dx;
-            for (; x != x2; ++x) {
+            for (; x <= x2; ++x) {
                 setPixel(canvas, x, y);
                 if (decisionParam >= 0) {
                     decisionParam += 2 * dy;
@@ -153,7 +153,7 @@ void Line::drawByBresenham(QImage &canvas)
         /* m > 1 */
         if (dx >= 0) {
             int decisionParam = - (2 * dx - dy);
-            for (; y != y2; ++y) {
+            for (; y <= y2; ++y) {
                 setPixel(canvas, x, y);
                 if (decisionParam <= 0) {
                     ++x;
@@ -167,7 +167,7 @@ void Line::drawByBresenham(QImage &canvas)
         /* m < -1 */
         else {
             int decisionParam = -(2 * dx + dy);
-            for (; y != y2; ++y) {
+            for (; y <= y2; ++y) {
                 setPixel(canvas, x, y);
                 if (decisionParam <= 0) {
                     decisionParam -= 2 * dx;
