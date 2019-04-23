@@ -1,8 +1,10 @@
 #include "ellipse.h"
 #include "utils.h"
+#include "line.h"
 
 #include <QPainter>
 #include <QtMath>
+#include <QtDebug>
 
 namespace CG {
 
@@ -19,8 +21,8 @@ Ellipse::Ellipse(const QPoint &topleft, const QPoint &bottomRight,
     : c(color), alg(algorithm)
 {
     p = (topleft + bottomRight) / 2;
-    rx = (bottomRight.x() - topleft.x()) / 2;
-    ry = (bottomRight.y() - topleft.y()) / 2;
+    rx = qAbs(p.x() - topleft.x());
+    ry = qAbs(p.y() - topleft.y());
 }
 
 void Ellipse::beginTransaction()
@@ -46,9 +48,88 @@ void Ellipse::rollbackTransaction()
 
 void Ellipse::draw(QImage &canvas)
 {
+    drawByBresenham(canvas);
+}
+
+void Ellipse::drawByDefault(QImage &canvas)
+{
     QPainter painter(&canvas);
     painter.setPen(c);
     painter.drawEllipse(p, rx, ry);
+}
+
+void Ellipse::drawByBresenham(QImage &canvas)
+{
+    if (rx == 0 && ry == 0) {
+        canvas.setPixel(p, c.rgb());
+        return;
+    }
+    if (rx == 0) {
+        QPoint p1 = p + QPoint(0, ry);
+        QPoint p2 = p - QPoint(0, ry);
+        CG::Line(p1, p2, c, "").draw(canvas);
+        return;
+    }
+    if (ry == 0) {
+        QPoint p1 = p + QPoint(rx, 0);
+        QPoint p2 = p - QPoint(rx, 0);
+        CG::Line(p1, p2, c, "").draw(canvas);
+        return;
+    }
+
+    int x = 0, y = ry;
+    int rxSquared = rx * rx, rySquared = ry * ry;
+
+    int decisionParam = 4 * (rySquared - rxSquared * ry) + rxSquared;
+    int deltaDecisionParamIfLe = 4 * (rySquared * (2 * x + 1));
+    int deltaDecisionParamIfG = 4 * (rySquared * (2 * x + 1) - rxSquared * 2 * y);
+    while (rySquared * x < rxSquared * y) {
+        setSymmetricPixel(canvas, x, y);
+        if (decisionParam <= 0) {
+            ++x;
+            deltaDecisionParamIfLe += 8 * rySquared;
+            deltaDecisionParamIfG += 8 * rySquared;
+            decisionParam += deltaDecisionParamIfLe;
+        }
+        else {
+            ++x;
+            --y;
+            deltaDecisionParamIfLe += 8 * rySquared;
+            deltaDecisionParamIfG += 8 * (rySquared + rxSquared);
+            decisionParam += deltaDecisionParamIfG;
+        }
+    }
+
+    decisionParam = rySquared * (2 * x + 1) * (2 * x + 1)
+            + 4 * (rxSquared * (y - 1) * (y - 1) - rxSquared * rySquared);
+    deltaDecisionParamIfLe = 4 * (rySquared * 2 * x - rxSquared * (2 * y - 1));
+    deltaDecisionParamIfG = 4 * (-rxSquared * (2 * y - 1));
+    while (y >= 0) {
+        setSymmetricPixel(canvas, x, y);
+        if (decisionParam <= 0) {
+            ++x;
+            --y;
+            deltaDecisionParamIfLe += 8 * (rySquared + rxSquared);
+            deltaDecisionParamIfG += 8 * rxSquared;
+            decisionParam += deltaDecisionParamIfLe;
+        }
+        else {
+            --y;
+            deltaDecisionParamIfLe += 8 * rxSquared;
+            deltaDecisionParamIfG += 8 * rxSquared;
+            decisionParam += deltaDecisionParamIfG;
+        }
+    }
+}
+
+void Ellipse::setSymmetricPixel(QImage &canvas, int x, int y)
+{
+    Q_ASSERT(x >= 0);
+    Q_ASSERT(y >= 0);
+    canvas.setPixel(p.x() + x, p.y() + y, c.rgb());
+    canvas.setPixel(p.x() + x, p.y() - y, c.rgb());
+    canvas.setPixel(p.x() - x, p.y() + y, c.rgb());
+    canvas.setPixel(p.x() - x, p.y() - y, c.rgb());
 }
 
 void Ellipse::translate(const QPoint &d)

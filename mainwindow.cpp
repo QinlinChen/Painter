@@ -6,7 +6,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    painter = new Painter(400, 300);
+    painter = new Painter(800, 600);
     setCentralWidget(painter);
     connect(painter, SIGNAL(shapeAdded(CG::Shape *)),
             this, SLOT(addShape(CG::Shape *)));

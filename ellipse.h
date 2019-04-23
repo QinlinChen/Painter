@@ -30,6 +30,10 @@ public:
     QRect getRectHull();
 
 private:
+    void drawByDefault(QImage &canvas);
+    void drawByBresenham(QImage &canvas);
+    void setSymmetricPixel(QImage &canvas, int x, int y);
+
     QPoint p;
     int rx, ry;
     QColor c;
