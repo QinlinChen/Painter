@@ -222,11 +222,37 @@ void Line::rotate(const QPoint &c, double r)
     }
 }
 
-void Line::clip(const QPoint &topLeft, const QPoint &bottomRight,
-                const QString &alg)
+CG::Shape *Line::clip(const QPoint &p1, const QPoint &p2, const QString &alg)
+{
+    QRect rect(p1, p2);
+    rect = rect.normalized();
+
+    if (alg == "Cohen-Sutherland")
+        return clipByCohenSutherland(rect.topLeft(), rect.bottomRight());
+    if (alg == "Liang-Barsky")
+        return clipByCohenSutherland(rect.topLeft(), rect.bottomRight());
+    return clipByDefault(rect.topLeft(), rect.bottomRight());
+}
+
+CG::Shape *Line::clipByDefault(const QPoint &topLeft, const QPoint &bottomRight)
+{
+    return clipByLiangBarsky(topLeft, bottomRight);
+}
+
+CG::Shape *Line::clipByCohenSutherland(const QPoint &topLeft,
+                                       const QPoint &bottomRight)
 {
     // TODO
-    qDebug() << "clip(" << topLeft << "," << bottomRight << "," << alg << ")";
+    qDebug() << "clip(" << topLeft << "," << bottomRight << ")";
+    return nullptr;
+}
+
+CG::Shape *Line::clipByLiangBarsky(const QPoint &topLeft,
+                                   const QPoint &bottomRight)
+{
+    // TODO
+    qDebug() << "clip(" << topLeft << "," << bottomRight << ")";
+    return nullptr;
 }
 
 QRect Line::getRectHull()

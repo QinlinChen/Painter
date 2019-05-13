@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(painter);
     connect(painter, SIGNAL(shapeAdded(CG::Shape *)),
             this, SLOT(addShape(CG::Shape *)));
+    connect(painter, SIGNAL(shapeRemoved(CG::Shape *)),
+            this, SLOT(removeShape(CG::Shape *)));
     connect(painter, SIGNAL(currentShapeChanged(CG::Shape *)),
             this, SLOT(setCurrentShapeForShapeList(CG::Shape *)));
 
@@ -269,6 +271,22 @@ void MainWindow::addShape(CG::Shape *shape)
 
     shapeList->insertItem(0, item);
     shapeManager.insert(shape, item);
+}
+
+void MainWindow::removeShape(CG::Shape *shape)
+{
+    if (!shape) {
+        qDebug("removeShape(nullptr)");
+        return;
+    }
+
+    QListWidgetItem *item = shapeManager.take(shape);
+    if (!item) {
+        qDebug("Can't find shape to remove!");
+        return;
+    }
+    shapeList->removeItemWidget(item);
+    delete item;
 }
 
 void MainWindow::setCurrentShapeForShapeList(CG::Shape *shape)

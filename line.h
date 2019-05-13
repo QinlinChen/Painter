@@ -24,8 +24,7 @@ public:
     void translate(const QPoint &d);
     void scale(const QPoint &c, double s);
     void rotate(const QPoint &c, double r);
-    void clip(const QPoint &topLeft, const QPoint &bottomRight,
-              const QString &alg);
+    CG::Shape *clip(const QPoint &p1, const QPoint &p2, const QString &alg);
 
     QRect getRectHull();
 
@@ -34,6 +33,12 @@ private:
     void drawByDDA(QImage &canvas);
     void drawByBresenham(QImage &canvas);
     void setPixel(QImage &canvas, int x, int y);
+
+    CG::Shape *clipByDefault(const QPoint &topLeft, const QPoint &bottomRight);
+    CG::Shape *clipByCohenSutherland(const QPoint &topLeft,
+                                     const QPoint &bottomRight);
+    CG::Shape *clipByLiangBarsky(const QPoint &topLeft,
+                                 const QPoint &bottomRight);
 
     QPoint p1, p2;
     QColor c;

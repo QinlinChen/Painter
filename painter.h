@@ -41,6 +41,7 @@ public:
 
 signals:
     void shapeAdded(CG::Shape *);
+    void shapeRemoved(CG::Shape *);
     void currentShapeChanged(CG::Shape *);
 
 public slots:
@@ -85,6 +86,9 @@ private:
     static void clearCanvas(QImage &canvas);
     void addShape(CG::Shape *shape);
     void addShapeAndFocus(CG::Shape *shape);
+    void removeShape(CG::Shape *shape);
+    void clipShapeAndRefocus(CG::Shape *shape);
+
     void drawShapes(QImage &canvas);
     void clearShapes();
 

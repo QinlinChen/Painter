@@ -35,7 +35,7 @@ private:
     void translate(int id, const QPoint &d);
     void rotate(int id, const QPoint &c, double r);
     void scale(int id, const QPoint &c, double s);
-    void clip(int id, const QPoint &topLeft, const QPoint &bottomRight,
+    void clip(int id, const QPoint &p1, const QPoint &p2,
               const QString &alg);
 
     QColor curColor;

@@ -294,10 +294,10 @@ void PainterCLI::scale(int id, const QPoint &c, double s)
     shape->scale(c, s);
 }
 
-void PainterCLI::clip(int id, const QPoint &topLeft, const QPoint &bottomRight,
+void PainterCLI::clip(int id, const QPoint &p1, const QPoint &p2,
                       const QString &alg)
 {
-    CG::Shape *shape = shapeManager.value(id, nullptr);
+    CG::Shape *shape = shapeManager.take(id);
     if (!shape) {
         cerr << "Cannot find shape by id: " << id << endl;
         return;
@@ -307,5 +307,8 @@ void PainterCLI::clip(int id, const QPoint &topLeft, const QPoint &bottomRight,
         cerr << "The shape with id " << id << " is not a Line" << endl;
         return;
     }
-    line->clip(topLeft, bottomRight, alg);
+    CG::Shape *clippedShape = line->clip(p1, p2, alg);
+    if (clippedShape)
+        shapeManager.insert(id, clippedShape);
+    delete line;
 }

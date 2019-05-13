@@ -461,9 +461,7 @@ void Painter::mouseReleaseEventOnClipMode(QMouseEvent *event)
         if (whatIsDoingNow == CLIPPING) {
             pe = event->pos();
             if (curShape && !Utils::isClose(pb, pe, 10)) {
-                CG::Line *line = dynamic_cast<CG::Line *>(curShape);
-                if (line)
-                    line->clip(pb, pe, "");
+                clipShapeAndRefocus(curShape);
             }
             whatIsDoingNow = IDLE;
             update();
@@ -554,6 +552,31 @@ void Painter::addShapeAndFocus(CG::Shape *shape)
 {
     addShape(shape);
     setCurrentShape(shape);
+}
+
+void Painter::removeShape(CG::Shape *shape)
+{
+    if (shape) {
+        if (!shapes.removeOne(shape)) {
+            qDebug("Can't find shape when removing");
+            return;
+        }
+        emit shapeRemoved(shape);
+    }
+}
+
+void Painter::clipShapeAndRefocus(CG::Shape *shape)
+{
+    CG::Line *line = dynamic_cast<CG::Line *>(shape);
+    if (line) {
+        CG::Shape *clippedShape = line->clip(pb, pe, "");
+        removeShape(line);
+        delete line;
+        if (clippedShape)
+            addShapeAndFocus(clippedShape);
+        else
+            setCurrentShape(nullptr);
+    }
 }
 
 void Painter::drawShapes(QImage &image)

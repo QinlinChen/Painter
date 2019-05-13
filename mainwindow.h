@@ -38,6 +38,7 @@ private slots:
     void about();
 
     void addShape(CG::Shape *shape);
+    void removeShape(CG::Shape *shape);
     void setCurrentShapeForShapeList(CG::Shape *shape);
     void setCurrentShapeForPainter(QListWidgetItem *current);
 
