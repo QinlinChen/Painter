@@ -230,7 +230,7 @@ CG::Shape *Line::clip(const QPoint &p1, const QPoint &p2, const QString &alg)
     if (alg == "Cohen-Sutherland")
         return clipByCohenSutherland(rect.topLeft(), rect.bottomRight());
     if (alg == "Liang-Barsky")
-        return clipByCohenSutherland(rect.topLeft(), rect.bottomRight());
+        return clipByLiangBarsky(rect.topLeft(), rect.bottomRight());
     return clipByDefault(rect.topLeft(), rect.bottomRight());
 }
 
@@ -239,20 +239,168 @@ CG::Shape *Line::clipByDefault(const QPoint &topLeft, const QPoint &bottomRight)
     return clipByLiangBarsky(topLeft, bottomRight);
 }
 
+#define TOP_MASK      0x8
+#define BOTTOM_MASK   0x4
+#define LEFT_MASK     0x2
+#define RIGHT_MASK    0x1
+#define IS_INSIDE_WINDOW(CODE1, CODE2)  (!((CODE1) | CODE2))
+#define IS_OUTSIDE_WINDOW(CODE1, CODE2) ((CODE1) & (CODE2))
+
 CG::Shape *Line::clipByCohenSutherland(const QPoint &topLeft,
                                        const QPoint &bottomRight)
 {
-    // TODO
-    qDebug() << "clip(" << topLeft << "," << bottomRight << ")";
-    return nullptr;
+    int top = topLeft.y(), bottom = bottomRight.y();
+    int left = topLeft.x(), right = bottomRight.x();
+    int x1 = p1.x(), y1 = p1.y();
+    int x2 = p2.x(), y2 = p2.y();
+    int outCode1 = calcOutCode(x1, y1, top, bottom, left, right);
+    int outCode2 = calcOutCode(x2, y2, top, bottom, left, right);
+    bool clipAll = false;
+
+    while (true) {
+        if (IS_INSIDE_WINDOW(outCode1, outCode2)) {
+            break;
+        }
+        else if (IS_OUTSIDE_WINDOW(outCode1, outCode2)) {
+            clipAll = true;
+            break;
+        }
+        else {
+            double xNew = 0.0, yNew = 0.0;
+            int outCodeSelected = outCode1 ? outCode1 : outCode2;
+
+            if (outCodeSelected & LEFT_MASK) {
+                yNew = y1 + (y2 - y1) * (left - x1) / (x2 - x1);
+                xNew = left;
+            } else if (outCodeSelected & RIGHT_MASK) {
+                yNew = y1 + (y2 - y1) * (right - x1) / (x2 - x1);
+                xNew = right;
+            } else if (outCodeSelected & TOP_MASK) {
+                xNew = x1 + (x2 - x1) * (top - y1) / (y2 - y1);
+                yNew = top;
+            } else if (outCodeSelected & BOTTOM_MASK) {
+                xNew = x1 + (x2 - x1) * (bottom - y1) / (y2 - y1);
+                yNew = bottom;
+            } else {
+                Q_ASSERT(0); /* Should not reach here */
+            }
+
+            if (outCodeSelected == outCode1) {
+                x1 = qRound(xNew);
+                y1 = qRound(yNew);
+                outCode1 = calcOutCode(x1, y1, top, bottom, left, right);
+            } else {
+                x2 = qRound(xNew);
+                y2 = qRound(yNew);
+                outCode2 = calcOutCode(x2, y2, top, bottom, left, right);
+            }
+        }
+    }
+
+    if (clipAll)
+        return nullptr;
+    return new Line(QPoint(x1, y1), QPoint(x2, y2), c, alg);
+}
+
+int Line::calcOutCode(int x, int y, int top, int bottom, int left, int right)
+{
+    Q_ASSERT(top < bottom);
+    Q_ASSERT(left < right);
+
+    int outCode = 0;
+
+    if (y < top)
+        outCode |= TOP_MASK;
+    else if (y > bottom)
+        outCode |= BOTTOM_MASK;
+    if (x < left)
+        outCode |= LEFT_MASK;
+    else if (x > right)
+        outCode |= RIGHT_MASK;
+
+    return outCode;
 }
 
 CG::Shape *Line::clipByLiangBarsky(const QPoint &topLeft,
                                    const QPoint &bottomRight)
 {
-    // TODO
-    qDebug() << "clip(" << topLeft << "," << bottomRight << ")";
-    return nullptr;
+    int top = topLeft.y(), bottom = bottomRight.y();
+    int left = topLeft.x(), right = bottomRight.x();
+    Q_ASSERT(top < bottom);
+    Q_ASSERT(left < right);
+
+    int x1 = p1.x(), y1 = p1.y();
+    int x2 = p2.x(), y2 = p2.y();
+
+    int p1 = -(x2 - x1);
+    int p2 = -p1;
+    int p3 = -(y2 - y1);
+    int p4 = -p3;
+
+    int q1 = x1 - left;
+    int q2 = right - x1;
+    int q3 = y1 - top;
+    int q4 = bottom - y1;
+
+    if ((p1 == 0 && q1 < 0) || (p3 == 0 && q3 < 0)) {
+        /* The line is parallel and outside to the clipping window. */
+        return nullptr;
+    }
+
+    double posarr[4], negarr[4];
+    int posind = 0, negind = 0;
+
+    if (p1 != 0) {
+        double r1 = static_cast<double>(q1) / p1;
+        double r2 = static_cast<double>(q2) / p2;
+        if (p1 < 0) {
+            negarr[negind++] = r1;
+            posarr[posind++] = r2;
+        } else {
+            negarr[negind++] = r2;
+            posarr[posind++] = r1;
+        }
+    }
+    if (p3 != 0) {
+        double r3 = static_cast<double>(q3) / p3;
+        double r4 = static_cast<double>(q4) / p4;
+        if (p3 < 0) {
+            negarr[negind++] = r3;
+            posarr[posind++] = r4;
+        } else {
+            negarr[negind++] = r4;
+            posarr[posind++] = r3;
+        }
+    }
+
+    double u1 = max(negarr, negind, 0.0);
+    double u2 = min(posarr, posind, 1.0);
+
+    if (u1 > u2) {
+        return nullptr;
+    }
+
+    QPoint p1New(static_cast<int>(x1 + p2 * u1) , static_cast<int>(y1 + p4 * u1));
+    QPoint p2New(static_cast<int>(x1 + p2 * u2), static_cast<int>(y1 + p4 * u2));
+    return new Line(p1New, p2New, c, alg);
+}
+
+double Line::max(double a[], int n, double defaultval)
+{
+    double m = defaultval;
+    for (int i = 0; i < n; ++i)
+        if (a[i] > m)
+            m = a[i];
+    return m;
+}
+
+double Line::min(double a[], int n, double defaultval)
+{
+    double m = defaultval;
+    for (int i = 0; i < n; ++i)
+        if (a[i] < m)
+            m = a[i];
+    return m;
 }
 
 QRect Line::getRectHull()

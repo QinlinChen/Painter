@@ -37,8 +37,12 @@ private:
     CG::Shape *clipByDefault(const QPoint &topLeft, const QPoint &bottomRight);
     CG::Shape *clipByCohenSutherland(const QPoint &topLeft,
                                      const QPoint &bottomRight);
+    int calcOutCode(int x, int y, int top, int bottom, int left, int right);
+
     CG::Shape *clipByLiangBarsky(const QPoint &topLeft,
                                  const QPoint &bottomRight);
+    static double max(double a[], int n, double defaultval = 0.0);
+    static double min(double a[], int n, double defaultval = 1.0);
 
     QPoint p1, p2;
     QColor c;
