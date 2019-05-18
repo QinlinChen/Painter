@@ -252,7 +252,7 @@ void MainWindow::about()
             tr("<h2>Painter 0.1</h2>"
                "<p>Copyright &copy; 2019 Qinlin Chen."
                "<p>Painter is a small application that "
-               "can paint shapes and do transformations "
+               "can draw shapes and do transformations "
                "on them."));
 }
 

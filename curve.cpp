@@ -1,4 +1,5 @@
 #include "curve.h"
+#include "line.h"
 #include "utils.h"
 
 #include <QDebug>
@@ -9,7 +10,7 @@ Curve::Curve(const QVector<QPoint> &points,
              const QColor &color, const QString &algorithm)
     : vp(points), c(color), alg(algorithm)
 {
-    Q_ASSERT(vp.size() >= 3);
+    Q_ASSERT(vp.size() >= 2);
 }
 
 void Curve::beginTransaction()
@@ -41,7 +42,9 @@ void Curve::draw(QImage &canvas)
 
 void Curve::drawByDefault(QImage &canvas)
 {
-    drawByBezier(canvas);
+    Q_ASSERT(vp.size() >= 2);
+    for (int i = 0; i < vp.size() - 1; ++i)
+        cg::Line(vp[i], vp[i+1], c, "DDA").draw(canvas);
 }
 
 void Curve::drawByBezier(QImage &canvas)
@@ -95,7 +98,7 @@ void Curve::rotate(const QPoint &c, double r)
 
 QRect Curve::getRectHull()
 {
-    Q_ASSERT(vp.size() >= 3);
+    Q_ASSERT(vp.size() >= 2);
     QPoint topLeft = vp[0];
     QPoint bottomRight = vp[0];
     for (int i = 1; i < vp.size(); ++i) {

@@ -2,6 +2,7 @@
 #include "line.h"
 #include "polygon.h"
 #include "ellipse.h"
+#include "curve.h"
 #include "utils.h"
 
 #include <QtWidgets>
@@ -200,7 +201,7 @@ void Painter::mouseReleaseEventOnDrawPolygonMode(QMouseEvent *event)
         Q_ASSERT(whatIsDoingNow == DRAWING_POLYGON);
         Q_ASSERT(points.size() > 0);
         if (event->button() == Qt::LeftButton) {
-            if (utils::isClose(mousePos, points[0], 8) && points.size() >= 3) {
+            if (points.size() >= 3 && utils::isClose(mousePos, points.first(), 8)) {
                 addShapeAndFocus(new cg::Polygon(points, penColor, ""));
                 points.clear();
                 whatIsDoingNow = IDLE;
@@ -264,26 +265,65 @@ void Painter::mouseReleaseEventOnDrawEllipseMode(QMouseEvent *event)
 
 void Painter::paintEventOnDrawCurveMode(QPaintEvent * /* event */)
 {
-    // TODO
-    qDebug("paintEventOnDrawCurveMode()");
+    if (whatIsDoingNow == DRAWING_CURVE) {
+        Q_ASSERT(points.size() >= 1);
+        QVector<QPoint> pointsToDraw = points;
+        pointsToDraw.append(pe);
+        cg::Curve(pointsToDraw, penColor, "").draw(canvas);
+    }
 }
 
 void Painter::mousePressEventOnDrawCurveMode(QMouseEvent * /*event*/)
 {
-    // TODO
-    qDebug("mousePressEventOnDrawCurveMode()");
+    /* Do nothing */
 }
 
-void Painter::mouseMoveEventOnDrawCurveMode(QMouseEvent * /*event*/)
+void Painter::mouseMoveEventOnDrawCurveMode(QMouseEvent *event)
 {
-    // TODO
-    qDebug("mouseMoveEventOnDrawCurveMode()");
+    if (whatIsDoingNow == IDLE)
+        return;
+
+    Q_ASSERT(whatIsDoingNow == DRAWING_CURVE);
+    pe = event->pos();
+    update();
 }
 
-void Painter::mouseReleaseEventOnDrawCurveMode(QMouseEvent * /*event*/)
+void Painter::mouseReleaseEventOnDrawCurveMode(QMouseEvent *event)
 {
-    // TODO
-    qDebug("mouseReleaseEventOnDrawCurveMode()");
+    QPoint mousePos = event->pos();
+    if (whatIsDoingNow == IDLE) {
+        if (event->button() == Qt::LeftButton) {
+            whatIsDoingNow = DRAWING_CURVE;
+            Q_ASSERT(points.empty());
+            points.append(mousePos);
+        }
+    }
+    else { /* whatIsDoingNow == DRAWING_CURVE */
+        Q_ASSERT(whatIsDoingNow == DRAWING_CURVE);
+        Q_ASSERT(points.size() > 0);
+        if (event->button() == Qt::LeftButton) {
+            if (points.size() >= 2 && utils::isClose(mousePos, points.last(), 8)) {
+                addShapeAndFocus(new cg::Curve(points, penColor, ""));
+                points.clear();
+                whatIsDoingNow = IDLE;
+            }
+            else {
+                if (std::find_if(points.begin(), points.end(),
+                                 std::bind(utils::isClose, _1, mousePos, 6))
+                        == points.end())
+                    points.append(mousePos);
+            }
+        }
+        else if (event->button() == Qt::RightButton) {
+            points.removeLast();
+            if (points.empty())
+                whatIsDoingNow = IDLE;
+        }
+        else {
+            Q_ASSERT(false); /* Should not reach here */
+        }
+        update();
+    }
 }
 
 void Painter::paintEventOnTransformMode(QPaintEvent * /* event */)
@@ -498,11 +538,11 @@ void Painter::setCurrentMode(int mode)
         curMode = mode;
         switch (curMode) {
         case DRAW_LINE_MODE:    /* fall through */
-        case DRAW_ELLIPSE_MODE: /* fall through */
-        case DRAW_CURVE_MODE:
+        case DRAW_ELLIPSE_MODE:
             setMouseTracking(false);
             setCursor(Qt::CrossCursor);
             break;
+        case DRAW_CURVE_MODE:   /* fall through */
         case DRAW_POLYGON_MODE:
             setMouseTracking(true);
             setCursor(Qt::CrossCursor);

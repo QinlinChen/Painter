@@ -258,8 +258,8 @@ void PainterCLI::drawEllipse(int id, const QPoint &center, int rx, int ry)
 void PainterCLI::drawCurve(int id, const QVector<QPoint> &points,
                            const QString &alg)
 {
-    // TODO
-    qDebug() << id << points << alg;
+    cg::Curve *curve = new cg::Curve(points, curColor, alg);
+    shapeManager.insert(id, curve);
 }
 
 void PainterCLI::translate(int id, const QPoint &d)
