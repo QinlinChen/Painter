@@ -1,7 +1,7 @@
 #include "shape.h"
 #include "utils.h"
 
-namespace CG {
+namespace cg {
 
 Shape::Shape()
     : duringTransaction(false), autoCenter(true)
@@ -32,7 +32,7 @@ QPoint Shape::getCenter()
 void Shape::setCenter(const QPoint &newCenter)
 {
     center = newCenter;
-    autoCenter = Utils::isClose(getRectHull().center(), center, 6);
+    autoCenter = utils::isClose(getRectHull().center(), center, 6);
 }
 
 }

@@ -125,7 +125,7 @@ void Painter::mouseReleaseEvent(QMouseEvent *event)
 void Painter::paintEventOnDrawLineMode(QPaintEvent * /* event */)
 {
     if (whatIsDoingNow == DRAWING_LINE) {
-        CG::Line(pb, pe, penColor, "").draw(canvas);
+        cg::Line(pb, pe, penColor, "").draw(canvas);
     }
 }
 
@@ -151,8 +151,8 @@ void Painter::mouseReleaseEventOnDrawLineMode(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         if (whatIsDoingNow == DRAWING_LINE) {
             pe = event->pos();
-            if (!Utils::isClose(pb, pe, 10)) {
-                addShapeAndFocus(new CG::Line(pb, pe, penColor, ""));
+            if (!utils::isClose(pb, pe, 10)) {
+                addShapeAndFocus(new cg::Line(pb, pe, penColor, ""));
             }
             whatIsDoingNow = IDLE;
             update();
@@ -165,9 +165,9 @@ void Painter::paintEventOnDrawPolygonMode(QPaintEvent * /* event */)
     if (whatIsDoingNow == DRAWING_POLYGON) {
         Q_ASSERT(points.size() >= 1);
         for (int i = 0; i < points.size() - 1; ++i) {
-            CG::Line(points[i], points[i + 1], penColor, "").draw(canvas);
+            cg::Line(points[i], points[i + 1], penColor, "").draw(canvas);
         }
-        CG::Line(points.back(), pe, penColor, "").draw(canvas);
+        cg::Line(points.back(), pe, penColor, "").draw(canvas);
     }
 }
 
@@ -200,14 +200,14 @@ void Painter::mouseReleaseEventOnDrawPolygonMode(QMouseEvent *event)
         Q_ASSERT(whatIsDoingNow == DRAWING_POLYGON);
         Q_ASSERT(points.size() > 0);
         if (event->button() == Qt::LeftButton) {
-            if (Utils::isClose(mousePos, points[0], 8) && points.size() >= 3) {
-                addShapeAndFocus(new CG::Polygon(points, penColor, ""));
+            if (utils::isClose(mousePos, points[0], 8) && points.size() >= 3) {
+                addShapeAndFocus(new cg::Polygon(points, penColor, ""));
                 points.clear();
                 whatIsDoingNow = IDLE;
             }
             else {
                 if (std::find_if(points.begin(), points.end(),
-                                 std::bind(Utils::isClose, _1, mousePos, 6))
+                                 std::bind(utils::isClose, _1, mousePos, 6))
                         == points.end())
                     points.append(mousePos);
             }
@@ -227,7 +227,7 @@ void Painter::mouseReleaseEventOnDrawPolygonMode(QMouseEvent *event)
 void Painter::paintEventOnDrawEllipseMode(QPaintEvent * /* event */)
 {
     if (whatIsDoingNow == DRAWING_ELLIPSE) {
-        CG::Ellipse(pb, pe, penColor, "").draw(canvas);
+        cg::Ellipse(pb, pe, penColor, "").draw(canvas);
     }
 }
 
@@ -253,8 +253,8 @@ void Painter::mouseReleaseEventOnDrawEllipseMode(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         if (whatIsDoingNow == DRAWING_ELLIPSE) {
             pe = event->pos();
-            if (!Utils::isClose(pb, pe, 10)) {
-                addShapeAndFocus(new CG::Ellipse(pb, pe, penColor, ""));
+            if (!utils::isClose(pb, pe, 10)) {
+                addShapeAndFocus(new cg::Ellipse(pb, pe, penColor, ""));
             }
             whatIsDoingNow = IDLE;
             update();
@@ -460,7 +460,7 @@ void Painter::mouseReleaseEventOnClipMode(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         if (whatIsDoingNow == CLIPPING) {
             pe = event->pos();
-            if (curShape && !Utils::isClose(pb, pe, 10)) {
+            if (curShape && !utils::isClose(pb, pe, 10)) {
                 clipShapeAndRefocus(curShape);
             }
             whatIsDoingNow = IDLE;
@@ -524,7 +524,7 @@ void Painter::setCurrentMode(int mode)
     }
 }
 
-void Painter::setCurrentShape(CG::Shape *shape)
+void Painter::setCurrentShape(cg::Shape *shape)
 {
     if (shape != curShape) {
         curShape = shape;
@@ -538,7 +538,7 @@ void Painter::clearCanvas(QImage &canvas)
     canvas.fill(Qt::white);
 }
 
-void Painter::addShape(CG::Shape *shape)
+void Painter::addShape(cg::Shape *shape)
 {
     if (shape) {
         /* It's better to check whether the shape added
@@ -548,13 +548,13 @@ void Painter::addShape(CG::Shape *shape)
     }
 }
 
-void Painter::addShapeAndFocus(CG::Shape *shape)
+void Painter::addShapeAndFocus(cg::Shape *shape)
 {
     addShape(shape);
     setCurrentShape(shape);
 }
 
-void Painter::removeShape(CG::Shape *shape)
+void Painter::removeShape(cg::Shape *shape)
 {
     if (shape) {
         if (!shapes.removeOne(shape)) {
@@ -565,11 +565,11 @@ void Painter::removeShape(CG::Shape *shape)
     }
 }
 
-void Painter::clipShapeAndRefocus(CG::Shape *shape)
+void Painter::clipShapeAndRefocus(cg::Shape *shape)
 {
-    CG::Line *line = dynamic_cast<CG::Line *>(shape);
+    cg::Line *line = dynamic_cast<cg::Line *>(shape);
     if (line) {
-        CG::Shape *clippedShape = line->clip(pb, pe, "");
+        cg::Shape *clippedShape = line->clip(pb, pe, "");
         removeShape(line);
         delete line;
         if (clippedShape)
@@ -631,8 +631,8 @@ double Painter::calculateScale(const QPoint &center,
 {
     QPoint vb = pb - center;
     QPoint ve = pe - center;
-    return static_cast<double>(Utils::innerProd(vb, ve))
-            / Utils::innerProd(vb, vb);
+    return static_cast<double>(utils::innerProd(vb, ve))
+            / utils::innerProd(vb, vb);
 }
 
 double Painter::calculateRotate(const QPoint &center,
@@ -640,34 +640,34 @@ double Painter::calculateRotate(const QPoint &center,
 {
     QPoint vb = pb - center;
     QPoint ve = pe - center;
-    double be = Utils::innerProd(vb, ve);
-    double bb = Utils::innerProd(vb, vb);
-    double ee = Utils::innerProd(ve, ve);
+    double be = utils::innerProd(vb, ve);
+    double bb = utils::innerProd(vb, vb);
+    double ee = utils::innerProd(ve, ve);
     double cosTheta = be / qSqrt(bb * ee);
     double theta = qAcos(cosTheta);
-    if (Utils::crossProd(vb, ve) < 0)
+    if (utils::crossProd(vb, ve) < 0)
         theta = -theta;
     return theta;
 }
 
 QRect Painter::topLeftScaleArea(const QRect &hull, int radius)
 {
-    return Utils::getRectAroundPoint(hull.topLeft(), radius);
+    return utils::getRectAroundPoint(hull.topLeft(), radius);
 }
 
 QRect Painter::topRightScaleArea(const QRect &hull, int radius)
 {
-    return Utils::getRectAroundPoint(hull.topRight(), radius);
+    return utils::getRectAroundPoint(hull.topRight(), radius);
 }
 
 QRect Painter::bottomLeftScaleArea(const QRect &hull, int radius)
 {
-    return Utils::getRectAroundPoint(hull.bottomLeft(), radius);
+    return utils::getRectAroundPoint(hull.bottomLeft(), radius);
 }
 
 QRect Painter::bottomRightScaleArea(const QRect &hull, int radius)
 {
-    return Utils::getRectAroundPoint(hull.bottomRight(), radius);
+    return utils::getRectAroundPoint(hull.bottomRight(), radius);
 }
 
 bool Painter::inTranslateArea(const QRect &hull, const QPoint &p)
@@ -690,5 +690,5 @@ bool Painter::inScaleArea(const QRect &hull, const QPoint &p, int radius)
 
 bool Painter::inMoveCenterArea(const QPoint &p, const QPoint &pos, int radius)
 {
-    return Utils::isClose(p, pos, radius);
+    return utils::isClose(p, pos, radius);
 }

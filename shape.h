@@ -7,7 +7,7 @@
 
 class QImage;
 
-namespace CG {
+namespace cg {
 
 class Shape
 {

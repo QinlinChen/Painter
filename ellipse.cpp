@@ -6,7 +6,7 @@
 #include <QtMath>
 #include <QtDebug>
 
-namespace CG {
+namespace cg {
 
 Ellipse::Ellipse(const QPoint &center, int rx, int ry,
                  const QColor &color, const QString &algorithm)
@@ -67,13 +67,13 @@ void Ellipse::drawByBresenham(QImage &canvas)
     if (rx == 0) {
         QPoint p1 = p + QPoint(0, ry);
         QPoint p2 = p - QPoint(0, ry);
-        CG::Line(p1, p2, c, "").draw(canvas);
+        cg::Line(p1, p2, c, "").draw(canvas);
         return;
     }
     if (ry == 0) {
         QPoint p1 = p + QPoint(rx, 0);
         QPoint p2 = p - QPoint(rx, 0);
-        CG::Line(p1, p2, c, "").draw(canvas);
+        cg::Line(p1, p2, c, "").draw(canvas);
         return;
     }
 
@@ -145,12 +145,12 @@ void Ellipse::translate(const QPoint &d)
 void Ellipse::scale(const QPoint &c, double s)
 {
     if (duringTransaction) {
-        p = Utils::scalePoint(oldp, c, s);
+        p = utils::scalePoint(oldp, c, s);
         rx = static_cast<int>(oldrx * s);
         ry = static_cast<int>(oldry * s);
     }
     else {
-        p = Utils::scalePoint(p, c, s);
+        p = utils::scalePoint(p, c, s);
         rx *= s;
         ry *= s;
     }
@@ -164,7 +164,7 @@ void Ellipse::rotate(const QPoint &c, double r)
     for (int i = 0; i < aThetaSize; ++i) {
         if (qAbs(aTheta[i] - r) <= 0.1) {
             if (duringTransaction) {
-                p = Utils::rotatePoint(oldp, c, r);
+                p = utils::rotatePoint(oldp, c, r);
                 if (i % 2 == 0) {
                     rx = oldry;
                     ry = oldrx;
@@ -175,7 +175,7 @@ void Ellipse::rotate(const QPoint &c, double r)
                 }
             }
             else {
-                p = Utils::rotatePoint(p, c, r);
+                p = utils::rotatePoint(p, c, r);
                 if (i % 2 == 0) {
                     std::swap(rx, ry);
                 }

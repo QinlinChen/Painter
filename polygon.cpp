@@ -4,9 +4,10 @@
 
 #include <QPainter>
 #include <QDebug>
-namespace CG {
+namespace cg {
 
-Polygon::Polygon(const QVector<QPoint> &points, const QColor &color, const QString &algorithm)
+Polygon::Polygon(const QVector<QPoint> &points,
+                 const QColor &color, const QString &algorithm)
     : vp(points), c(color), alg(algorithm)
 {
     Q_ASSERT(vp.size() >= 3);
@@ -51,8 +52,8 @@ void Polygon::drawByDDA(QImage &canvas)
     Q_ASSERT(vp.size() >= 3);
 
     for (int i = 0; i < vp.size() - 1; ++i)
-        CG::Line(vp[i], vp[i+1], c, "DDA").draw(canvas);
-    CG::Line(vp.back(), vp.front(), c, "DDA").draw(canvas);
+        cg::Line(vp[i], vp[i+1], c, "DDA").draw(canvas);
+    cg::Line(vp.back(), vp.front(), c, "DDA").draw(canvas);
 }
 
 void Polygon::drawByBresenham(QImage &canvas)
@@ -60,8 +61,8 @@ void Polygon::drawByBresenham(QImage &canvas)
     Q_ASSERT(vp.size() >= 3);
 
     for (int i = 0; i < vp.size() - 1; ++i)
-        CG::Line(vp[i], vp[i+1], c, "Bresenham").draw(canvas);
-    CG::Line(vp.back(), vp.front(), c, "Bresenham").draw(canvas);
+        cg::Line(vp[i], vp[i+1], c, "Bresenham").draw(canvas);
+    cg::Line(vp.back(), vp.front(), c, "Bresenham").draw(canvas);
 }
 
 void Polygon::translate(const QPoint &d)
@@ -82,11 +83,11 @@ void Polygon::scale(const QPoint &c, double s)
     if (duringTransaction) {
         Q_ASSERT(vp.size() == oldvp.size());
         for (int i = 0; i < vp.size(); ++i)
-            vp[i] = Utils::scalePoint(oldvp[i], c, s);
+            vp[i] = utils::scalePoint(oldvp[i], c, s);
     }
     else {
         for (int i = 0; i < vp.size(); ++i)
-            vp[i] = Utils::scalePoint(vp[i], c, s);
+            vp[i] = utils::scalePoint(vp[i], c, s);
     }
 }
 
@@ -95,11 +96,11 @@ void Polygon::rotate(const QPoint &c, double r)
     if (duringTransaction) {
         Q_ASSERT(vp.size() == oldvp.size());
         for (int i = 0; i < vp.size(); ++i)
-            vp[i] = Utils::rotatePoint(oldvp[i], c, r);
+            vp[i] = utils::rotatePoint(oldvp[i], c, r);
     }
     else {
         for (int i = 0; i < vp.size(); ++i)
-            vp[i] = Utils::rotatePoint(vp[i], c, r);
+            vp[i] = utils::rotatePoint(vp[i], c, r);
     }
 }
 

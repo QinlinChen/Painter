@@ -5,7 +5,7 @@
 
 #include <QColor>
 
-namespace CG {
+namespace cg {
 
 class Ellipse : public Shape
 {

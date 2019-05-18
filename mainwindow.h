@@ -37,9 +37,9 @@ private slots:
     void clip();
     void about();
 
-    void addShape(CG::Shape *shape);
-    void removeShape(CG::Shape *shape);
-    void setCurrentShapeForShapeList(CG::Shape *shape);
+    void addShape(cg::Shape *shape);
+    void removeShape(cg::Shape *shape);
+    void setCurrentShapeForShapeList(cg::Shape *shape);
     void setCurrentShapeForPainter(QListWidgetItem *current);
 
 private:
@@ -52,7 +52,7 @@ private:
                                    const QSize &size = QSize(32, 32));
 
     QListWidget *shapeList;
-    QMap<CG::Shape *, QListWidgetItem *> shapeManager;
+    QMap<cg::Shape *, QListWidgetItem *> shapeManager;
 
     Painter *painter;
 

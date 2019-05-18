@@ -8,12 +8,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     painter = new Painter(800, 600);
     setCentralWidget(painter);
-    connect(painter, SIGNAL(shapeAdded(CG::Shape *)),
-            this, SLOT(addShape(CG::Shape *)));
-    connect(painter, SIGNAL(shapeRemoved(CG::Shape *)),
-            this, SLOT(removeShape(CG::Shape *)));
-    connect(painter, SIGNAL(currentShapeChanged(CG::Shape *)),
-            this, SLOT(setCurrentShapeForShapeList(CG::Shape *)));
+    connect(painter, SIGNAL(shapeAdded(cg::Shape *)),
+            this, SLOT(addShape(cg::Shape *)));
+    connect(painter, SIGNAL(shapeRemoved(cg::Shape *)),
+            this, SLOT(removeShape(cg::Shape *)));
+    connect(painter, SIGNAL(currentShapeChanged(cg::Shape *)),
+            this, SLOT(setCurrentShapeForShapeList(cg::Shape *)));
 
     createActions();
     createMenus();
@@ -256,7 +256,7 @@ void MainWindow::about()
                "on them."));
 }
 
-void MainWindow::addShape(CG::Shape *shape)
+void MainWindow::addShape(cg::Shape *shape)
 {
     static int id = 1;
     if (!shape) {
@@ -273,7 +273,7 @@ void MainWindow::addShape(CG::Shape *shape)
     shapeManager.insert(shape, item);
 }
 
-void MainWindow::removeShape(CG::Shape *shape)
+void MainWindow::removeShape(cg::Shape *shape)
 {
     if (!shape) {
         qDebug("removeShape(nullptr)");
@@ -289,7 +289,7 @@ void MainWindow::removeShape(CG::Shape *shape)
     delete item;
 }
 
-void MainWindow::setCurrentShapeForShapeList(CG::Shape *shape)
+void MainWindow::setCurrentShapeForShapeList(cg::Shape *shape)
 {
     QListWidgetItem *item = nullptr;
     if (shape) {
@@ -304,10 +304,10 @@ void MainWindow::setCurrentShapeForShapeList(CG::Shape *shape)
 
 void MainWindow::setCurrentShapeForPainter(QListWidgetItem *current)
 {
-    CG::Shape *shape = nullptr;
+    cg::Shape *shape = nullptr;
     if (current) {
         QVariant data = current->data(Qt::UserRole);
-        shape = static_cast<CG::Shape *>(data.value<void *>());
+        shape = static_cast<cg::Shape *>(data.value<void *>());
     }
     painter->setCurrentShape(shape);
 }

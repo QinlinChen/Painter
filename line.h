@@ -5,7 +5,7 @@
 
 #include <QColor>
 
-namespace CG {
+namespace cg {
 
 class Line : public Shape
 {
@@ -24,7 +24,7 @@ public:
     void translate(const QPoint &d);
     void scale(const QPoint &c, double s);
     void rotate(const QPoint &c, double r);
-    CG::Shape *clip(const QPoint &p1, const QPoint &p2, const QString &alg);
+    cg::Shape *clip(const QPoint &p1, const QPoint &p2, const QString &alg);
 
     QRect getRectHull();
 
@@ -34,12 +34,12 @@ private:
     void drawByBresenham(QImage &canvas);
     void setPixel(QImage &canvas, int x, int y);
 
-    CG::Shape *clipByDefault(const QPoint &topLeft, const QPoint &bottomRight);
-    CG::Shape *clipByCohenSutherland(const QPoint &topLeft,
+    cg::Shape *clipByDefault(const QPoint &topLeft, const QPoint &bottomRight);
+    cg::Shape *clipByCohenSutherland(const QPoint &topLeft,
                                      const QPoint &bottomRight);
     int calcOutCode(int x, int y, int top, int bottom, int left, int right);
 
-    CG::Shape *clipByLiangBarsky(const QPoint &topLeft,
+    cg::Shape *clipByLiangBarsky(const QPoint &topLeft,
                                  const QPoint &bottomRight);
     static double max(double a[], int n, double defaultval = 0.0);
     static double min(double a[], int n, double defaultval = 1.0);

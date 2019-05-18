@@ -238,20 +238,20 @@ void PainterCLI::setColor(const QColor &color)
 void PainterCLI::drawLine(int id, const QPoint &p1, const QPoint &p2,
                           const QString &alg)
 {
-    CG::Line *line = new CG::Line(p1, p2, curColor, alg);
+    cg::Line *line = new cg::Line(p1, p2, curColor, alg);
     shapeManager.insert(id, line);
 }
 
 void PainterCLI::drawPolygon(int id, const QVector<QPoint> &points,
                              const QString &alg)
 {
-    CG::Polygon *polygon = new CG::Polygon(points, curColor, alg);
+    cg::Polygon *polygon = new cg::Polygon(points, curColor, alg);
     shapeManager.insert(id, polygon);
 }
 
 void PainterCLI::drawEllipse(int id, const QPoint &center, int rx, int ry)
 {
-    CG::Ellipse *ellipse = new CG::Ellipse(center, rx, ry, curColor, "");
+    cg::Ellipse *ellipse = new cg::Ellipse(center, rx, ry, curColor, "");
     shapeManager.insert(id, ellipse);
 }
 
@@ -264,7 +264,7 @@ void PainterCLI::drawCurve(int id, const QVector<QPoint> &points,
 
 void PainterCLI::translate(int id, const QPoint &d)
 {
-    CG::Shape *shape = shapeManager.value(id, nullptr);
+    cg::Shape *shape = shapeManager.value(id, nullptr);
     if (!shape) {
         cerr << "Cannot find shape by id: " << id << endl;
         return;
@@ -274,7 +274,7 @@ void PainterCLI::translate(int id, const QPoint &d)
 
 void PainterCLI::rotate(int id, const QPoint &c, double r)
 {
-    CG::Shape *shape = shapeManager.value(id, nullptr);
+    cg::Shape *shape = shapeManager.value(id, nullptr);
     if (!shape) {
         cerr << "Cannot find shape by id: " << id << endl;
         return;
@@ -286,7 +286,7 @@ void PainterCLI::rotate(int id, const QPoint &c, double r)
 
 void PainterCLI::scale(int id, const QPoint &c, double s)
 {
-    CG::Shape *shape = shapeManager.value(id, nullptr);
+    cg::Shape *shape = shapeManager.value(id, nullptr);
     if (!shape) {
         cerr << "Cannot find shape by id: " << id << endl;
         return;
@@ -297,17 +297,17 @@ void PainterCLI::scale(int id, const QPoint &c, double s)
 void PainterCLI::clip(int id, const QPoint &p1, const QPoint &p2,
                       const QString &alg)
 {
-    CG::Shape *shape = shapeManager.take(id);
+    cg::Shape *shape = shapeManager.take(id);
     if (!shape) {
         cerr << "Cannot find shape by id: " << id << endl;
         return;
     }
-    CG::Line *line = dynamic_cast<CG::Line *>(shape);
+    cg::Line *line = dynamic_cast<cg::Line *>(shape);
     if (!line) {
         cerr << "The shape with id " << id << " is not a Line" << endl;
         return;
     }
-    CG::Shape *clippedShape = line->clip(p1, p2, alg);
+    cg::Shape *clippedShape = line->clip(p1, p2, alg);
     if (clippedShape)
         shapeManager.insert(id, clippedShape);
     delete line;

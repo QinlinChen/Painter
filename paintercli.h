@@ -40,7 +40,7 @@ private:
 
     QColor curColor;
     QImage canvas;
-    QMap<int, CG::Shape *> shapeManager;
+    QMap<int, cg::Shape *> shapeManager;
 };
 
 #endif // PAINTERCLI_H

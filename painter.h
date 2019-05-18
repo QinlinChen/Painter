@@ -31,7 +31,7 @@ public:
     int getCurrentMode() const { return curMode; }
     void setCurrentMode(int mode);
 
-    void setCurrentShape(CG::Shape *shape);
+    void setCurrentShape(cg::Shape *shape);
 
     // enum for curMode
     enum {
@@ -40,9 +40,9 @@ public:
     };
 
 signals:
-    void shapeAdded(CG::Shape *);
-    void shapeRemoved(CG::Shape *);
-    void currentShapeChanged(CG::Shape *);
+    void shapeAdded(cg::Shape *);
+    void shapeRemoved(cg::Shape *);
+    void currentShapeChanged(cg::Shape *);
 
 public slots:
 
@@ -84,10 +84,10 @@ private:
     void mouseReleaseEventOnClipMode(QMouseEvent *event);
 
     static void clearCanvas(QImage &canvas);
-    void addShape(CG::Shape *shape);
-    void addShapeAndFocus(CG::Shape *shape);
-    void removeShape(CG::Shape *shape);
-    void clipShapeAndRefocus(CG::Shape *shape);
+    void addShape(cg::Shape *shape);
+    void addShapeAndFocus(cg::Shape *shape);
+    void removeShape(cg::Shape *shape);
+    void clipShapeAndRefocus(cg::Shape *shape);
 
     void drawShapes(QImage &canvas);
     void clearShapes();
@@ -125,8 +125,8 @@ private:
     int curMode;
     int whatIsDoingNow;
 
-    QList<CG::Shape *> shapes;
-    CG::Shape *curShape;
+    QList<cg::Shape *> shapes;
+    cg::Shape *curShape;
 
     /* temporary varibles for drawing lines, transfroming, etc. */
     QPoint pb, pe;      /* pointBegin, pointEnd */

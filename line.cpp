@@ -4,7 +4,7 @@
 #include <QPainter>
 #include <QtDebug>
 
-namespace CG {
+namespace cg {
 
 Line::Line(const QPoint &point1, const QPoint &point2,
            const QColor &color, const QString &algorithm)
@@ -201,28 +201,28 @@ void Line::translate(const QPoint &d)
 void Line::scale(const QPoint &c, double s)
 {
     if (duringTransaction) {
-        p1 = Utils::scalePoint(oldp1, c, s);
-        p2 = Utils::scalePoint(oldp2, c, s);
+        p1 = utils::scalePoint(oldp1, c, s);
+        p2 = utils::scalePoint(oldp2, c, s);
     }
     else {
-        p1 = Utils::scalePoint(p1, c, s);
-        p2 = Utils::scalePoint(p2, c, s);
+        p1 = utils::scalePoint(p1, c, s);
+        p2 = utils::scalePoint(p2, c, s);
     }
 }
 
 void Line::rotate(const QPoint &c, double r)
 {
     if (duringTransaction) {
-        p1 = Utils::rotatePoint(oldp1, c, r);
-        p2 = Utils::rotatePoint(oldp2, c, r);
+        p1 = utils::rotatePoint(oldp1, c, r);
+        p2 = utils::rotatePoint(oldp2, c, r);
     }
     else {
-        p1 = Utils::rotatePoint(p1, c, r);
-        p2 = Utils::rotatePoint(p2, c, r);
+        p1 = utils::rotatePoint(p1, c, r);
+        p2 = utils::rotatePoint(p2, c, r);
     }
 }
 
-CG::Shape *Line::clip(const QPoint &p1, const QPoint &p2, const QString &alg)
+cg::Shape *Line::clip(const QPoint &p1, const QPoint &p2, const QString &alg)
 {
     QRect rect(p1, p2);
     rect = rect.normalized();
@@ -234,7 +234,7 @@ CG::Shape *Line::clip(const QPoint &p1, const QPoint &p2, const QString &alg)
     return clipByDefault(rect.topLeft(), rect.bottomRight());
 }
 
-CG::Shape *Line::clipByDefault(const QPoint &topLeft, const QPoint &bottomRight)
+cg::Shape *Line::clipByDefault(const QPoint &topLeft, const QPoint &bottomRight)
 {
     return clipByLiangBarsky(topLeft, bottomRight);
 }
@@ -246,7 +246,7 @@ CG::Shape *Line::clipByDefault(const QPoint &topLeft, const QPoint &bottomRight)
 #define IS_INSIDE_WINDOW(CODE1, CODE2)  (!((CODE1) | CODE2))
 #define IS_OUTSIDE_WINDOW(CODE1, CODE2) ((CODE1) & (CODE2))
 
-CG::Shape *Line::clipByCohenSutherland(const QPoint &topLeft,
+cg::Shape *Line::clipByCohenSutherland(const QPoint &topLeft,
                                        const QPoint &bottomRight)
 {
     int top = topLeft.y(), bottom = bottomRight.y();
@@ -321,7 +321,7 @@ int Line::calcOutCode(int x, int y, int top, int bottom, int left, int right)
     return outCode;
 }
 
-CG::Shape *Line::clipByLiangBarsky(const QPoint &topLeft,
+cg::Shape *Line::clipByLiangBarsky(const QPoint &topLeft,
                                    const QPoint &bottomRight)
 {
     int top = topLeft.y(), bottom = bottomRight.y();

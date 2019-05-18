@@ -6,7 +6,7 @@
 #include <QVector>
 #include <QColor>
 
-namespace CG {
+namespace cg {
 
 class Polygon : public Shape
 {
