@@ -2,7 +2,6 @@
 #include "utils.h"
 
 #include <QImage>
-#include <QPainter>
 #include <QtDebug>
 
 namespace cg {
@@ -45,9 +44,7 @@ void Line::draw(QImage &canvas)
 
 void Line::drawByDefault(QImage &canvas)
 {
-    QPainter painter(&canvas);
-    painter.setPen(c);
-    painter.drawLine(p1, p2);
+    drawByBresenham(canvas);
 }
 
 void Line::drawByDDA(QImage &canvas)

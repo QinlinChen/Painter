@@ -3,7 +3,6 @@
 #include "line.h"
 
 #include <QImage>
-#include <QPainter>
 #include <QtMath>
 #include <QtDebug>
 
@@ -54,9 +53,7 @@ void Ellipse::draw(QImage &canvas)
 
 void Ellipse::drawByDefault(QImage &canvas)
 {
-    QPainter painter(&canvas);
-    painter.setPen(c);
-    painter.drawEllipse(p, rx, ry);
+    drawByBresenham(canvas);
 }
 
 void Ellipse::drawByBresenham(QImage &canvas)

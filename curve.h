@@ -32,9 +32,15 @@ private:
     void drawByDefault(QImage &canvas);
     void drawByBezier(QImage &canvas);
     static QPoint calcCasteljauPoint(const QVector<QPoint> &points, double u);
+    static double calcLength(const QVector<QPoint> &points);
 
     void drawByBspline(QImage &canvas);
-
+    static QPoint calcDeBoorPoint(const QVector<QPoint> &controls,
+                                  const QVector<double> &knots,
+                                  double u, int order);
+    static QVector<double> createKnots(int nControl, int k);
+    static int findKnotIndex(const QVector<double> &knots,
+                             int nControl, int order, double u);
 
     QVector<QPoint> vp;
     QColor c;

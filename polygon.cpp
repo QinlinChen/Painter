@@ -3,7 +3,6 @@
 #include "line.h"
 
 #include <QImage>
-#include <QPainter>
 #include <QtDebug>
 namespace cg {
 
@@ -43,9 +42,7 @@ void Polygon::draw(QImage &canvas)
 
 void Polygon::drawByDefault(QImage &canvas)
 {
-    QPainter painter(&canvas);
-    painter.setPen(c);
-    painter.drawPolygon(vp.data(), vp.size());
+    drawByBresenham(canvas);
 }
 
 void Polygon::drawByDDA(QImage &canvas)
