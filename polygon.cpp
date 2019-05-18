@@ -2,8 +2,9 @@
 #include "utils.h"
 #include "line.h"
 
+#include <QImage>
 #include <QPainter>
-#include <QDebug>
+#include <QtDebug>
 namespace cg {
 
 Polygon::Polygon(const QVector<QPoint> &points,

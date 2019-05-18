@@ -2,7 +2,8 @@
 #include "line.h"
 #include "utils.h"
 
-#include <QDebug>
+#include <QImage>
+#include <QtDebug>
 
 namespace cg {
 
@@ -42,14 +43,30 @@ void Curve::draw(QImage &canvas)
 
 void Curve::drawByDefault(QImage &canvas)
 {
-    Q_ASSERT(vp.size() >= 2);
-    for (int i = 0; i < vp.size() - 1; ++i)
-        cg::Line(vp[i], vp[i+1], c, "DDA").draw(canvas);
+    drawByBezier(canvas);
 }
 
 void Curve::drawByBezier(QImage &canvas)
 {
-    // TODO
+    Q_ASSERT(vp.size() >= 2);
+    for (double u = 0; u <= 1; u += 0.001) {
+        canvas.setPixel(calcCasteljauPoint(vp, u), c.rgb());
+    }
+}
+
+QPoint Curve::calcCasteljauPoint(const QVector<QPoint> &points, double u)
+{
+    QVector<QPointF> vp;
+    for (auto &point : points)
+        vp.append(QPointF(point));
+
+    int n = vp.size() - 1;
+    for (int r = 0; r < n; ++r)
+        for (int i = 0; i < n - r; ++i)
+            vp[i] = (1 - u) * vp[i] + u * vp[i + 1];
+
+    const QPointF &casteljauPoint = vp.front();
+    return QPoint(qRound(casteljauPoint.x()), qRound(casteljauPoint.y()));
 }
 
 void Curve::drawByBspline(QImage &canvas)

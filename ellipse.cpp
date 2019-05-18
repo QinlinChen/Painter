@@ -2,6 +2,7 @@
 #include "utils.h"
 #include "line.h"
 
+#include <QImage>
 #include <QPainter>
 #include <QtMath>
 #include <QtDebug>

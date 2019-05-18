@@ -37,7 +37,7 @@ private:
     cg::Shape *clipByDefault(const QPoint &topLeft, const QPoint &bottomRight);
     cg::Shape *clipByCohenSutherland(const QPoint &topLeft,
                                      const QPoint &bottomRight);
-    int calcOutCode(int x, int y, int top, int bottom, int left, int right);
+    static int calcOutCode(int x, int y, int top, int bottom, int left, int right);
 
     cg::Shape *clipByLiangBarsky(const QPoint &topLeft,
                                  const QPoint &bottomRight);

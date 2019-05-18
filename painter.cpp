@@ -269,6 +269,11 @@ void Painter::paintEventOnDrawCurveMode(QPaintEvent * /* event */)
         Q_ASSERT(points.size() >= 1);
         QVector<QPoint> pointsToDraw = points;
         pointsToDraw.append(pe);
+
+        QPainter painter(&canvas);
+        painter.setPen(Qt::DashLine);
+        for (int i = 0; i < pointsToDraw.size() - 1; ++i)
+            painter.drawLine(pointsToDraw[i], pointsToDraw[i + 1]);
         cg::Curve(pointsToDraw, penColor, "").draw(canvas);
     }
 }

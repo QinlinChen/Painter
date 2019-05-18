@@ -31,7 +31,10 @@ public:
 private:
     void drawByDefault(QImage &canvas);
     void drawByBezier(QImage &canvas);
+    static QPoint calcCasteljauPoint(const QVector<QPoint> &points, double u);
+
     void drawByBspline(QImage &canvas);
+
 
     QVector<QPoint> vp;
     QColor c;

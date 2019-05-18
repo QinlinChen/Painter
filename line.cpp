@@ -1,6 +1,7 @@
 #include "line.h"
 #include "utils.h"
 
+#include <QImage>
 #include <QPainter>
 #include <QtDebug>
 
