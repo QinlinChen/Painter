@@ -50,18 +50,19 @@ void Curve::drawByDefault(QImage &canvas)
 void Curve::drawByBezier(QImage &canvas)
 {
     Q_ASSERT(vp.size() >= 2);
-    QPoint prev = calcCasteljauPoint(vp, 0.0);
+
+    QPoint prev = calcDeCasteljauPoint(0.0, vp);
     QPoint cur;
 
     double step = 0.001;
     for (double u = step; u <= 1; u += step) {
-        cur = calcCasteljauPoint(vp, u);
+        cur = calcDeCasteljauPoint(u, vp);
         Line(prev, cur, c, "").draw(canvas);
         prev = cur;
     }
 }
 
-QPoint Curve::calcCasteljauPoint(const QVector<QPoint> &points, double u)
+QPoint Curve::calcDeCasteljauPoint(double u, const QVector<QPoint> &points)
 {
     QVector<QPointF> vp;
     for (auto &point : points)
@@ -96,38 +97,48 @@ void Curve::drawByBspline(QImage &canvas)
         return;
     }
 
-    int order = vp.size() - 1;
-    QVector<double> knots = createKnots(vp.size(), order);
+    int nControl = vp.size();
+    int order = nControl <= 4 ? nControl - 1 : 4;
+    QVector<double> knots = createKnots(nControl, order);
 
-    for (double u = 0; u <= 1; u += 0.001) {
-        QPoint deBoorPoint = calcDeBoorPoint(vp, knots, u, order);
-        canvas.setPixel(deBoorPoint, c.rgb());
+    QPoint prev = calcDeBoorPoint(0.0, order, vp, knots);
+    QPoint cur;
+
+    double step = 0.001;
+    for (double u = step; u <= 1; u += step) {
+        cur = calcDeBoorPoint(u, order, vp, knots);
+        Line(prev, cur, c, "").draw(canvas);
+        prev = cur;
     }
 }
 
-QPoint Curve::calcDeBoorPoint(const QVector<QPoint> &controls,
-                              const QVector<double> &knots,
-                              double u, int order)
+QPoint Curve::calcDeBoorPoint(double u, int order,
+                              const QVector<QPoint> &controls,
+                              const QVector<double> &knots)
 {
-    QVector<QPointF> vp;
+    QVector<QPointF> cp;
     for (auto &controlPoint : controls)
-        vp.append(controlPoint);
+        cp.append(controlPoint);
 
     int n = controls.size() - 1;
     for (int r = 1; r <= order - 1; ++r) {
         for (int i = n; i >= r; --i) {
             double lamda = (u - knots[i]) / (knots[i + order - r] - knots[i]);
-            vp[i] = lamda * vp[i] + (1 - lamda) * vp[i - 1];
+            cp[i] = lamda * cp[i] + (1 - lamda) * cp[i - 1];
         }
     }
 
-    int knotIndex = findKnotIndex(knots, controls.size(), order, u);
-    const QPointF &deBoorPoint = vp[knotIndex];
+    int knotIndex = calcKnotIndex(u, controls.size(), order);
+    Q_ASSERT(u >= knots[knotIndex]);
+    Q_ASSERT(u <= knots[knotIndex + 1]);
+    const QPointF &deBoorPoint = cp[knotIndex];
     return QPoint(qRound(deBoorPoint.x()), qRound(deBoorPoint.y()));
 }
 
 QVector<double> Curve::createKnots(int nControl, int order)
 {
+    Q_ASSERT(order <= nControl);
+
     int nKnot = nControl + order;
     QVector<double> knots(nKnot);
 
@@ -140,18 +151,15 @@ QVector<double> Curve::createKnots(int nControl, int order)
             knots[i] = knots[i - 1] + 1.0 / (nControl - order + 1);
     }
 
-    qDebug() << knots;
     return knots;
 }
 
-int Curve::findKnotIndex(const QVector<double> &knots,
-                         int nControl, int order, double u)
+int Curve::calcKnotIndex(double u, int nControl, int order)
 {
-    double step = 1.0 / (nControl - order + 1);
-    int knotIndex = order + static_cast<int>(u / step);
+    Q_ASSERT(order <= nControl);
 
-    Q_ASSERT(u >= knots[knotIndex]);
-    Q_ASSERT(u <= knots[knotIndex + 1]);
+    double step = 1.0 / (nControl - order + 1);
+    int knotIndex = order - 1 + static_cast<int>(u / step);
     return knotIndex;
 }
 
