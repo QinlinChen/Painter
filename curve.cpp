@@ -44,7 +44,7 @@ void Curve::draw(QImage &canvas)
 
 void Curve::drawByDefault(QImage &canvas)
 {
-    drawByBspline(canvas);
+    drawByBezier(canvas);
 }
 
 void Curve::drawByBezier(QImage &canvas)

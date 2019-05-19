@@ -250,10 +250,10 @@ void MainWindow::about()
 {
     QMessageBox::about(this, tr("About Painter"),
             tr("<h2>Painter 0.1</h2>"
-               "<p>Copyright &copy; 2019 Qinlin Chen."
+               "<p>Copyright &copy; 2019 Qinlin Chen.</p>"
                "<p>Painter is a small application that "
                "can draw shapes and do transformations "
-               "on them."));
+               "on them.</p>"));
 }
 
 void MainWindow::addShape(cg::Shape *shape)

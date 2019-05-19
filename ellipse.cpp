@@ -144,13 +144,13 @@ void Ellipse::scale(const QPoint &c, double s)
 {
     if (duringTransaction) {
         p = utils::scalePoint(oldp, c, s);
-        rx = static_cast<int>(oldrx * s);
-        ry = static_cast<int>(oldry * s);
+        rx = qAbs(static_cast<int>(oldrx * s));
+        ry = qAbs(static_cast<int>(oldry * s));
     }
     else {
         p = utils::scalePoint(p, c, s);
-        rx *= s;
-        ry *= s;
+        rx = qAbs(static_cast<int>(rx * s));
+        ry = qAbs(static_cast<int>(ry * s));
     }
 }
 
