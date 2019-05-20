@@ -585,12 +585,13 @@ void Painter::clearCanvas(QImage &canvas)
 
 void Painter::addShape(cg::Shape *shape)
 {
-    if (shape) {
-        /* It's better to check whether the shape added
-         * is already in the shape list. */
-        shapes.append(shape);
-        emit shapeAdded(shape);
-    }
+    if (!shape)
+        return;
+
+    /* It's better to check whether the shape added
+     * is already in the shape list. */
+    shapes.append(shape);
+    emit shapeAdded(shape);
 }
 
 void Painter::addShapeAndFocus(cg::Shape *shape)
@@ -601,17 +602,21 @@ void Painter::addShapeAndFocus(cg::Shape *shape)
 
 void Painter::removeShape(cg::Shape *shape)
 {
-    if (shape) {
-        if (!shapes.removeOne(shape)) {
-            qDebug("Can't find shape when removing");
-            return;
-        }
-        emit shapeRemoved(shape);
+    if (!shape)
+        return;
+
+    if (!shapes.removeOne(shape)) {
+        qDebug("Can't find shape when removing");
+        return;
     }
+    emit shapeRemoved(shape);
 }
 
 void Painter::clipShapeAndRefocus(cg::Shape *shape)
 {
+    if (!shape)
+        return;
+
     cg::Line *line = dynamic_cast<cg::Line *>(shape);
     if (line) {
         cg::Shape *clippedShape = line->clip(pb, pe, "");
@@ -621,6 +626,13 @@ void Painter::clipShapeAndRefocus(cg::Shape *shape)
             addShapeAndFocus(clippedShape);
         else
             setCurrentShape(nullptr);
+    }
+    else {
+        /* Trick: The following code enables you to
+         * delete other shapes by clipping. */
+        removeShape(shape);
+        delete shape;
+        setCurrentShape(nullptr);
     }
 }
 
