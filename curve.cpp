@@ -98,7 +98,7 @@ void Curve::drawByBspline(QImage &canvas)
     }
 
     int nControl = vp.size();
-    int order = nControl <= 4 ? nControl - 1 : 4;
+    int order = 3;
     QVector<double> knots = createKnots(nControl, order);
 
     QPoint prev = calcDeBoorPoint(0.0, order, vp, knots);
@@ -110,6 +110,25 @@ void Curve::drawByBspline(QImage &canvas)
         Line(prev, cur, c, "").draw(canvas);
         prev = cur;
     }
+}
+
+QVector<double> Curve::createKnots(int nControl, int order)
+{
+    Q_ASSERT(order <= nControl);
+
+    int nKnot = nControl + order;
+    QVector<double> knots(nKnot);
+
+    for (int i = 0; i < nKnot; ++i) {
+        if (i < order)
+            knots[i] = 0.0;
+        else if (i > nControl)
+            knots[i] = 1.0;
+        else
+            knots[i] = knots[i - 1] + 1.0 / (nControl - order + 1);
+    }
+
+    return knots;
 }
 
 QPoint Curve::calcDeBoorPoint(double u, int order,
@@ -133,25 +152,6 @@ QPoint Curve::calcDeBoorPoint(double u, int order,
     Q_ASSERT(u <= knots[knotIndex + 1]);
     const QPointF &deBoorPoint = cp[knotIndex];
     return QPoint(qRound(deBoorPoint.x()), qRound(deBoorPoint.y()));
-}
-
-QVector<double> Curve::createKnots(int nControl, int order)
-{
-    Q_ASSERT(order <= nControl);
-
-    int nKnot = nControl + order;
-    QVector<double> knots(nKnot);
-
-    for (int i = 0; i < nKnot; ++i) {
-        if (i < order)
-            knots[i] = 0.0;
-        else if (i > nControl)
-            knots[i] = 1.0;
-        else
-            knots[i] = knots[i - 1] + 1.0 / (nControl - order + 1);
-    }
-
-    return knots;
 }
 
 int Curve::calcKnotIndex(double u, int nControl, int order)
