@@ -313,10 +313,7 @@ void Painter::mouseReleaseEventOnDrawCurveMode(QMouseEvent *event)
                 whatIsDoingNow = IDLE;
             }
             else {
-                if (std::find_if(points.begin(), points.end(),
-                                 std::bind(utils::isClose, _1, mousePos, 6))
-                        == points.end())
-                    points.append(mousePos);
+                points.append(mousePos);
             }
         }
         else if (event->button() == Qt::RightButton) {
